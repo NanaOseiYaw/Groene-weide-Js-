@@ -1,0 +1,8 @@
+# AI log
+
+Team agreement (carried over from the C# project): every prompt used with an AI tool is logged here with what it produced and what a person checked or changed. AI-generated code is reviewed by a second team member before it is merged.
+
+| Date | Who | Phase | Prompt (short) | What the AI made | What was checked or changed |
+| :-- | :-- | :-- | :-- | :-- | :-- |
+| 2026-11-18 | Nana (with Claude Code) | Audit | Analyse the C# project and propose a Node.js migration plan | `docs/migration-plan.md`: existing architecture, data model, business rules, proposed Express + Vue architecture, API draft, AI boundary, risks, phases | Found that only `frontend-ontwerp` and the local `medewerkersportaal` branch contain the app; `main` is the empty template. Decisions taken: MVP first, portal next; Vue 3 + Vite; home page on `/`, booking on `/reserveren`; AI service location still open. To be reviewed by a team member. |
+| 2026-11-18 | Nana (with Claude Code) | 1 – Foundation | Start phase 1 | npm workspaces, Express app (`/api/health`, 404 and error handling, security headers), config from environment variables with checks, SQLite connection, migration runner, `001_initial.sql` (data model in cents, STRICT tables, CHECK constraints), seed identical to `Seed.cs`, `db:*` scripts, 23 tests, README | Tested: `npm test` 23/23; `npm run dev` creates the database with 60 spots (40/12/8, T37–T40 held) and 20 reservations, `/api/health` ok; `db:reset` refused in production; invalid `PORT` gives a clear error. `better-sqlite3` v13 crashed on Node 22.11 (prebuilt binary), so v12 is used. Staff accounts are not in this phase (phase 3). To be reviewed by a team member. |
