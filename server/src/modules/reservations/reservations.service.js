@@ -9,6 +9,7 @@ import crypto from 'node:crypto';
 import { HttpError } from '../../lib/errors.js';
 import { daysBetween, isIsoDate } from '@groene-weide/shared/dates';
 import { euro, formatDate, formatLongDate, formatNights, reservationNumber, SPOT_TYPE_LABELS } from '@groene-weide/shared/format';
+import { validateGuestDetails } from '@groene-weide/shared/validation';
 import { SPOT_TYPES, text } from '../../lib/validate.js';
 import { checkPeriodDates } from '../availability/availability.service.js';
 import { priceStay } from '../pricing/price-rules.js';
@@ -18,8 +19,6 @@ import { BOOKABLE, BOOKABLE_FOR_STAFF, FREE_BETWEEN } from '../spots/spot-querie
 export const EQUIPMENT_NOTES = Object.freeze({ OwnTent: 'Eigen tent', OwnCaravan: 'Eigen caravan' });
 
 const SPOT_TAKEN_MESSAGE = 'Deze plek is net door iemand anders gereserveerd of niet meer beschikbaar. Kies een andere plek; de lijst is bijgewerkt.';
-const PHONE = /^\+?[0-9][0-9 \-()]{8,18}[0-9]$/;
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
  * Booking step 6: stores a guest's reservation with payment status "Open".
@@ -222,17 +221,8 @@ function readGuestBooking(input) {
   }
 
   const guest = { name: text(input.guest?.name), email: text(input.guest?.email), phone: text(input.guest?.phone) };
-  const fields = {};
-  if (!guest.name) fields.name = 'Vul je naam in.';
-  else if (guest.name.length > 120) fields.name = 'Je naam mag maximaal 120 tekens lang zijn.';
-
-  if (!guest.email) fields.email = 'Vul je e-mailadres in. Daar sturen we de bevestiging naartoe.';
-  else if (guest.email.length > 190) fields.email = 'Dit e-mailadres is te lang.';
-  else if (!EMAIL.test(guest.email)) fields.email = 'Dit e-mailadres klopt niet. Bijvoorbeeld: naam@voorbeeld.nl';
-
-  if (!guest.phone) fields.phone = 'Vul je telefoonnummer in, zodat we je kunnen bellen als dat nodig is.';
-  else if (!PHONE.test(guest.phone)) fields.phone = 'Dit telefoonnummer klopt niet. Bijvoorbeeld: 06 12345678';
-
+  // The same rules the browser uses (shared/validation.js); here they are the real check.
+  const fields = validateGuestDetails(guest);
   if (Object.keys(fields).length > 0) {
     throw new HttpError(422, 'validation_failed', 'Niet alle gegevens zijn goed ingevuld.', fields);
   }

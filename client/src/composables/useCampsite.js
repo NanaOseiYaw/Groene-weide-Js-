@@ -18,10 +18,19 @@ const campsite = ref({
 let loading = null;
 
 export function useCampsite() {
+  loadCampsite();
+  return readonly(campsite);
+}
+
+/**
+ * Waits until the campsite details are loaded (e.g. the calendar needs "today" from the server).
+ * Resolves with the details, or with the defaults when the API cannot be reached.
+ */
+export function loadCampsite() {
   loading ??= getCampsite()
     .then((data) => { campsite.value = data; })
-    .catch(() => { loading = null; }); // try again on the next page
-  return readonly(campsite);
+    .catch(() => { loading = null; }); // try again next time
+  return loading.then(() => readonly(campsite).value);
 }
 
 /** "Open van 1 april tot en met 31 oktober", from the season in the settings. */

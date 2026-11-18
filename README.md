@@ -7,7 +7,7 @@ This is the JavaScript version of the original C# (Blazor) project. The migratio
 | Part | Technology | Status |
 | :-- | :-- | :-- |
 | Backend (`server/`) | Node.js, Express 5, SQLite (`better-sqlite3`) | Phases 1–3 done: database, public booking API, staff sign-in and staff API (daily overview, reservations, phone booking, spots out of use, photos) |
-| Frontend (`client/`) | Vue 3, Vue Router 4, Vite 8, the original Sass styling | Phase 4 done: site frame, staff frame, shared components, sign-in page. Booking steps: phase 5. Staff pages: phase 6. New home page: phase 8 |
+| Frontend (`client/`) | Vue 3, Vue Router 4, Vite 8, the original Sass styling | Phases 4–5 done: site frame, shared components, sign-in page, the complete guest booking flow on `/reserveren`. Staff pages: phase 6. New home page: phase 8 (the current one is the C# step 1) |
 | Shared (`shared/`) | Plain JavaScript | Dates and Dutch formatting, used by both server and client |
 | AI (separate) | Python, by Mohammed, behind an HTTP contract | Not started (phase 7) |
 
@@ -99,10 +99,11 @@ client/                    the Vue frontend
     stores/                shared state, e.g. auth.js (who is signed in)
     composables/           shared logic for components, e.g. useCampsite.js (name, phone, season)
     layouts/               SiteLayout.vue (guests) and AdminLayout.vue (staff)
-    pages/                 one component per page
+    pages/                 one component per page (BookingPage.vue = the booking steps)
+    components/booking/    the booking steps, the colourful calendar, spot list and spot pop-up
     components/ui/         small shared building blocks: AppIcon, AlertBox, LoadingState, EmptyState, FieldSign, ModalDialog, …
     styles/                the Sass from the C# project (tokens, mixins, one file per component)
-shared/                    dates and Dutch formatting, used by server and client
+shared/                    dates, Dutch formatting and the guest-detail rules, used by server and client
 server/
   src/
     server.js              starts everything: settings → database → HTTP server
@@ -156,6 +157,10 @@ In the frontend, `client/src/api/http.js` turns that into an `ApiError` with `st
 ## No double bookings
 
 Checking that a spot is free and saving the reservation happen in one database transaction that takes the write lock first (`insertReservationIfFree` in `server/src/modules/reservations/reservations.service.js`). `npm test` proves it in `server/test/double-booking.test.js`: 10 guests booking the same spot at the same moment, through the API and from 10 separate database connections, guests and staff mixed. Exactly 1 succeeds each time.
+
+## Trying a booking
+
+Open http://localhost:5173, click "Reserveer een plek" or one of the fields, and go through the steps. The dummy data has full and almost-full days in July 2027 (safari tents) and deal days on 13 and 14 April 2027. After paying, the confirmation e-mail with the invoice is in `server/data/mail/mail.log`. To test "this spot was just taken": open the same spot and dates in two browser windows and pay in the first one, then in the second.
 
 ## Known: `npm audit`
 

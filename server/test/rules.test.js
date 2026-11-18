@@ -1,7 +1,8 @@
 // Unit tests for the small building blocks: dates, Dutch formatting, prices and the season.
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { addDays, daysBetween, eachNight, isIsoDate, todayIn } from '@groene-weide/shared/dates';
+import { addDays, addMonths, daysBetween, eachNight, firstOfMonth, isIsoDate, todayIn, weekdayFromMonday } from '@groene-weide/shared/dates';
+import { validateGuestDetails } from '@groene-weide/shared/validation';
 import { euro, formatDate, formatLongDate, formatNights, formatShortDate, reservationNumber } from '@groene-weide/shared/format';
 import { dealFor, discountedCents } from '../src/modules/pricing/price-rules.js';
 import { createSettings } from '../src/modules/settings/settings.service.js';
@@ -20,6 +21,16 @@ describe('dates', () => {
     assert.equal(addDays('2027-10-30', 2), '2027-11-01');
     assert.equal(addDays('2027-12-31', 1), '2028-01-01');
     assert.equal(addDays('2027-07-14', -14), '2027-06-30');
+  });
+
+  it('moves by months like C# AddMonths and knows the weekday', () => {
+    assert.equal(addMonths('2027-01-31', 1), '2027-02-28');
+    assert.equal(addMonths('2028-01-31', 1), '2028-02-29');
+    assert.equal(addMonths('2027-07-14', -7), '2026-12-14');
+    assert.equal(addMonths('2027-12-05', 1), '2028-01-05');
+    assert.equal(firstOfMonth('2027-07-14'), '2027-07-01');
+    assert.equal(weekdayFromMonday('2027-07-12'), 0); // a Monday
+    assert.equal(weekdayFromMonday('2027-07-18'), 6); // a Sunday
   });
 
   it('counts nights from arrival to departure', () => {
@@ -93,5 +104,17 @@ describe('season', () => {
     assert.equal(settings.nextOpenDay('2027-01-15'), '2027-04-01');
     assert.equal(settings.nextOpenDay('2027-07-15'), '2027-07-15');
     assert.equal(settings.nextOpenDay('2027-11-20'), '2028-04-01');
+  });
+});
+
+describe('guest details (shared by browser and server)', () => {
+  it('accepts correct details and explains every mistake in Dutch', () => {
+    assert.deepEqual(validateGuestDetails({ name: 'Familie Jansen', email: 'jansen@example.com', phone: '06 12345678' }), {});
+    assert.deepEqual(validateGuestDetails({}), {
+      name: 'Vul je naam in.',
+      email: 'Vul je e-mailadres in. Daar sturen we de bevestiging naartoe.',
+      phone: 'Vul je telefoonnummer in, zodat we je kunnen bellen als dat nodig is.',
+    });
+    assert.deepEqual(Object.keys(validateGuestDetails({ name: 'x'.repeat(121), email: 'a@b', phone: '12' })), ['name', 'email', 'phone']);
   });
 });

@@ -29,6 +29,12 @@ describe('loadConfig', () => {
     assert.throws(() => loadConfig({ SEED_ON_START: 'maybe' }), /SEED_ON_START must be true or false/);
   });
 
+  it('allows the Vite dev server as an origin in development only', () => {
+    assert.ok(loadConfig({}).allowedOrigins.includes('http://localhost:5173'));
+    assert.deepEqual(loadConfig({ NODE_ENV: 'production' }).allowedOrigins, []);
+    assert.deepEqual(loadConfig({ NODE_ENV: 'production', ALLOWED_ORIGINS: 'https://a.example, https://b.example' }).allowedOrigins, ['https://a.example', 'https://b.example']);
+  });
+
   it('returns a frozen object, so no code can change a setting by accident', () => {
     assert.ok(Object.isFrozen(loadConfig({})));
   });

@@ -15,6 +15,9 @@ const repoRoot = path.resolve(serverRoot, '..');
 
 const ENVIRONMENTS = ['development', 'production', 'test'];
 
+/** Addresses of the Vite dev server (client/vite.config.js), allowed in development only. */
+const VITE_DEV_ORIGINS = ['http://localhost:5173', 'http://127.0.0.1:5173'];
+
 /** Thrown when a setting has an invalid value. The message says which one and why. */
 export class ConfigError extends Error {}
 
@@ -55,7 +58,12 @@ export function loadConfig(env = process.env) {
     spotPhotosFolder: path.join(path.resolve(serverRoot, env.UPLOADS_FOLDER || 'data/uploads'), 'spots'),
     // Other websites (origins) that may send requests that change something, e.g. a separately hosted frontend.
     // The site itself is always allowed. Comma separated: https://a.example,https://b.example
-    allowedOrigins: Object.freeze(readList(env.ALLOWED_ORIGINS)),
+    // In development the Vite dev server (npm run dev, port 5173) passes requests on to the API,
+    // so the browser's address differs from the API's: that address is allowed in development only.
+    allowedOrigins: Object.freeze([
+      ...readList(env.ALLOWED_ORIGINS),
+      ...(nodeEnv === 'development' ? VITE_DEV_ORIGINS : []),
+    ]),
     campsite: Object.freeze({
       name: env.CAMPSITE_NAME || 'Camping De Groene Weide',
       phone: env.CAMPSITE_PHONE || '',

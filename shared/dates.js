@@ -35,6 +35,26 @@ export function firstOfNextMonth(date) {
   return makeDate(year, month + 1, 1);
 }
 
+/** First day of the month of `date`: '2027-07-14' → '2027-07-01'. */
+export function firstOfMonth(date) {
+  return `${date.slice(0, 7)}-01`;
+}
+
+/**
+ * Same day `months` months later (or earlier when negative). When that day does not exist,
+ * the last day of the month is used: '2027-01-31' + 1 → '2027-02-28' (like C# AddMonths).
+ */
+export function addMonths(date, months) {
+  const { year, month, day } = parts(date);
+  const lastDay = new Date(Date.UTC(year, month - 1 + months + 1, 0)).getUTCDate();
+  return makeDate(year, month + months, Math.min(day, lastDay));
+}
+
+/** Day of the week with Monday = 0 … Sunday = 6 (Dutch calendars start on Monday). */
+export function weekdayFromMonday(date) {
+  return (new Date(toUtc(date)).getUTCDay() + 6) % 7;
+}
+
 /** Number of nights from start to end: ('2027-07-14', '2027-07-17') → 3. */
 export function daysBetween(start, end) {
   return Math.round((toUtc(end) - toUtc(start)) / DAY_MS);

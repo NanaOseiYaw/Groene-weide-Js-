@@ -4,13 +4,12 @@
 import { HttpError } from '../../lib/errors.js';
 import { daysBetween, isIsoDate } from '@groene-weide/shared/dates';
 import { reservationNumber } from '@groene-weide/shared/format';
+import { EMAIL_PATTERN, PHONE_PATTERN } from '@groene-weide/shared/validation';
 import { SPOT_TYPES, text } from '../../lib/validate.js';
 import { checkPeriodDates } from '../availability/availability.service.js';
 import { insertReservationIfFree } from '../reservations/reservations.service.js';
 import { FREE_BETWEEN, BOOKABLE_FOR_STAFF } from '../spots/spot-queries.js';
 
-const PHONE = /^\+?[0-9][0-9 \-()]{8,18}[0-9]$/;
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const STATUSES = ['Confirmed', 'Cancelled'];
 
 /** Everything one row of the reservation list needs. */
@@ -163,11 +162,11 @@ function readManualBooking(input) {
 
   const guestPhone = text(input.guestPhone);
   if (!guestPhone) fields.guestPhone = 'Vul een telefoonnummer in.';
-  else if (!PHONE.test(guestPhone)) fields.guestPhone = 'Dit telefoonnummer klopt niet. Bijvoorbeeld: 06 12345678';
+  else if (!PHONE_PATTERN.test(guestPhone)) fields.guestPhone = 'Dit telefoonnummer klopt niet. Bijvoorbeeld: 06 12345678';
 
   const guestEmail = text(input.guestEmail) || null; // optional
   if (guestEmail && guestEmail.length > 190) fields.guestEmail = 'Dit e-mailadres is te lang.';
-  else if (guestEmail && !EMAIL.test(guestEmail)) fields.guestEmail = 'Dit e-mailadres klopt niet. Bijvoorbeeld: naam@voorbeeld.nl';
+  else if (guestEmail && !EMAIL_PATTERN.test(guestEmail)) fields.guestEmail = 'Dit e-mailadres klopt niet. Bijvoorbeeld: naam@voorbeeld.nl';
 
   const notes = text(input.notes) || null;
   if (notes && notes.length > 1000) fields.notes = 'De opmerking is te lang (maximaal 1000 tekens).';
