@@ -1,0 +1,66 @@
+@use "../variables" as v;
+@use "../mixins" as m;
+
+// Forms: the label is always visible and above the field, fields are large, errors sit right below the field.
+.field {
+  margin-bottom: v.$space-l;
+
+  > label, > legend { display: block; font-weight: v.$font-weight-bold; margin-bottom: v.$space-xs; }
+
+  &__hint { display: block; color: v.$color-ink-soft; font-size: v.$font-size-small; margin-bottom: v.$space-s; }
+}
+
+fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+
+// Blazor's InputText renders <input> without a type attribute, so match that too
+input:not([type]), input[type="text"], input[type="email"], input[type="tel"], input[type="password"],
+input[type="date"], input[type="search"], input[type="number"], select, textarea {
+  @include m.focus-ring;
+  @include m.transition(border-color, box-shadow);
+  width: 100%; max-width: 30em; min-height: v.$tap-target-min;
+  padding: v.$space-s v.$space-m;
+  font: inherit; color: v.$color-ink; background: v.$color-white;
+  border: v.$border-thick solid v.$color-border; border-radius: v.$radius;
+
+  &:hover { border-color: v.$color-ink-soft; }
+}
+
+textarea { min-height: 6em; resize: vertical; }
+
+input[type="checkbox"], input[type="radio"] {
+  @include m.focus-ring;
+  width: 1.4em; height: 1.4em; accent-color: v.$color-forest; margin: 0; flex: none;
+}
+
+input[type="file"] {
+  @include m.focus-ring;
+  font: inherit; max-width: 100%;
+  &::file-selector-button {
+    font: inherit; font-weight: v.$font-weight-bold; margin-right: v.$space-m; cursor: pointer;
+    padding: v.$space-s v.$space-m; min-height: v.$tap-target-min;
+    border: v.$border-thick solid v.$color-forest; border-radius: v.$radius;
+    background: v.$color-white; color: v.$color-forest;
+  }
+}
+
+// A checkbox with its label next to it (instead of .field, whose label sits above the input)
+.check-field { display: flex; align-items: center; gap: v.$space-s; margin-bottom: v.$space-l; }
+
+// Label next to a checkbox or radio button
+.checkbox {
+  display: inline-flex; align-items: center; gap: v.$space-s; min-height: v.$tap-target-min;
+  cursor: pointer; font-weight: v.$font-weight-regular;
+}
+
+// Blazor validation: red border and a text with a round "!" marker (never colour alone)
+.invalid, .modified.invalid { border-color: v.$color-error !important; }
+.validation-message {
+  display: flex; gap: v.$space-xs; align-items: baseline;
+  color: v.$color-error; font-weight: v.$font-weight-bold; margin-top: v.$space-xs;
+  &::before {
+    content: "!"; display: inline-flex; align-items: center; justify-content: center;
+    width: 1.2em; height: 1.2em; flex: none; border-radius: 50%;
+    background: v.$color-error; color: v.$color-white; font-size: 0.85em;
+  }
+}
+.validation-errors { padding-left: v.$space-l; color: v.$color-error; }

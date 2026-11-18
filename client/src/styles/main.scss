@@ -1,0 +1,27 @@
+// Entry point of all styling. AspNetCore.SassCompiler turns this into wwwroot/css/main.css.
+// Files starting with _ are not compiled on their own; they are loaded here.
+
+// Foundation
+@use "base";
+
+// Shared components (design system, see docs/design-system.md)
+@use "components/buttons";
+@use "components/cards";
+@use "components/forms";
+@use "components/alerts";
+@use "components/tables";
+@use "components/states";
+@use "components/field-sign";
+
+// Site frame and home page
+@use "components/layout";
+@use "components/hero";
+
+// Screens
+@use "components/progress";
+@use "components/booking";
+@use "components/calendar";
+@use "components/spot-dialog";
+@use "components/admin";
+@use "components/spot-management";
+@use "components/manual-booking";

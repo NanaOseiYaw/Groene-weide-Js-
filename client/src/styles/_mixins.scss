@@ -1,0 +1,47 @@
+@use "variables" as v;
+
+// Visible focus: dark outline with a yellow halo, readable on light and dark backgrounds.
+@mixin focus-ring {
+  &:focus-visible {
+    outline: 0.2em solid v.$color-ink;
+    outline-offset: 0.15em;
+    box-shadow: 0 0 0 0.45em v.$color-buttercup;
+  }
+}
+
+// Focus on a dark background (site header, admin menu).
+@mixin focus-ring-light {
+  &:focus-visible {
+    outline: 0.2em solid v.$color-white;
+    outline-offset: 0.15em;
+    box-shadow: 0 0 0 0.45em v.$color-buttercup;
+  }
+}
+
+// Large tap target (at least 2.75em), for older guests and for Bert and Anita.
+@mixin tap-target { min-width: v.$tap-target-min; min-height: v.$tap-target-min; }
+
+// Short transition; switched off for prefers-reduced-motion (see _base.scss).
+@mixin transition($properties...) {
+  transition-property: $properties;
+  transition-duration: v.$duration-fast;
+  transition-timing-function: v.$easing;
+}
+
+@mixin from-tablet {
+  @media (min-width: v.$bp-tablet) { @content; }
+}
+
+@mixin from-desktop {
+  @media (min-width: v.$bp-desktop) { @content; }
+}
+
+@mixin below-tablet {
+  @media (max-width: (v.$bp-tablet - 0.01em)) { @content; }
+}
+
+// Only visible to screen readers (1px is the standard technique here).
+@mixin visually-hidden {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}

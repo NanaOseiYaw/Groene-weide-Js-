@@ -1,0 +1,27 @@
+@use "../variables" as v;
+@use "../mixins" as m;
+
+// Card: white surface with a border. Not everything is a card: only use it to set something apart.
+.card {
+  background: v.$color-white;
+  border: v.$border-thin solid v.$color-border-soft;
+  border-radius: v.$radius-lg;
+  padding: v.$space-l;
+  box-shadow: v.$shadow-low;
+
+  > :last-child { margin-bottom: 0; }
+
+  // Green-tinted card, e.g. the summary in step 6
+  &--meadow { background: v.$color-meadow-soft; border-color: v.$color-meadow; box-shadow: none; }
+}
+
+// List of facts (dt/dd) with an icon in front
+.facts {
+  display: grid; gap: v.$space-s v.$space-l; margin: v.$space-m 0;
+  @include m.from-tablet { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  &__item { display: grid; grid-template-columns: auto 1fr; gap: 0 v.$space-s; align-items: start; }
+  &__item > .icon { grid-row: span 2; margin-top: 0.2em; color: v.$color-forest; }
+  dt { font-weight: v.$font-weight-bold; }
+  dd { margin: 0; color: v.$color-ink-soft; }
+}

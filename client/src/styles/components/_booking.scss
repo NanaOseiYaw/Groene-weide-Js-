@@ -1,0 +1,101 @@
+@use "../variables" as v;
+@use "../mixins" as m;
+
+// Steps of the one-page booking flow.
+
+// Small page title above the progress bar
+.booking__title { font-size: v.$font-size-h2; margin-bottom: v.$space-m; }
+
+.step {
+  > h2 { margin-top: v.$space-m; }
+}
+
+// Steps 2 and 3: large choice cards with a real radio button
+.choices {
+  // Three options read most calmly as a list, one below the other
+  display: grid; gap: v.$space-m; max-width: v.$step-max;
+  // Two options may sit side by side when there is room
+  &--two { grid-template-columns: repeat(auto-fit, minmax(min(15em, 100%), 1fr)); }
+}
+
+.choice {
+  @include m.transition(border-color, background-color, box-shadow);
+  position: relative;
+  display: grid; grid-template-columns: auto auto 1fr; align-items: start; gap: v.$space-m;
+  min-height: v.$tap-target-min; padding: v.$space-l;
+  background: v.$color-white; border: v.$border-thick solid v.$color-border; border-radius: v.$radius-lg;
+  cursor: pointer;
+
+  &:hover { border-color: v.$color-forest; }
+  // Visible focus around the whole card when its radio button has keyboard focus
+  &:has(input:focus-visible) { outline: 0.2em solid v.$color-ink; outline-offset: 0.15em; box-shadow: 0 0 0 0.45em v.$color-buttercup; }
+
+  input { margin-top: 0.3em; }
+
+  &__icon { color: v.$color-forest; .icon { width: 1.8em; height: 1.8em; } }
+  &__body { display: flex; flex-direction: column; gap: v.$space-xs; }
+  &__title { font-family: v.$font-heading; font-weight: v.$font-weight-bold; font-size: v.$font-size-large; }
+  &__text { color: v.$color-ink-soft; }
+  &__price { font-weight: v.$font-weight-bold; color: v.$color-forest; }
+
+  // Selected: thicker border, meadow background and the text "Gekozen" (not colour alone)
+  &--selected { border-color: v.$color-forest; border-width: 0.25em; background: v.$color-meadow-soft; padding: calc(#{v.$space-l} - 0.125em); }
+  &__chosen {
+    grid-column: 1 / -1; justify-self: start;
+    display: inline-flex; align-items: center; gap: v.$space-xs;
+    padding: 0 v.$space-s; border-radius: v.$radius-sm;
+    background: v.$color-forest; color: v.$color-white; font-weight: v.$font-weight-bold; font-size: v.$font-size-small;
+  }
+}
+
+// Step 6: summary next to the form (wide screens), summary first on a phone
+.checkout {
+  display: grid; gap: v.$space-l; align-items: start;
+  @include m.from-desktop { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+
+  &__summary {
+    h3 { margin-top: 0; }
+    @include m.from-desktop { grid-column: 2; grid-row: 1; position: sticky; top: v.$space-m; }
+  }
+  &__form { @include m.from-desktop { grid-column: 1; grid-row: 1; } }
+}
+
+// List of reservation details (steps 6 and 7)
+.summary {
+  display: grid; gap: v.$space-s; margin: 0 0 v.$space-m;
+
+  div { display: grid; gap: 0 v.$space-m; @include m.from-tablet { grid-template-columns: 11em 1fr; } }
+  dt { font-weight: v.$font-weight-bold; display: flex; align-items: center; gap: v.$space-s; }
+  dt .icon { color: v.$color-forest; }
+  dd { margin: 0; }
+
+  &__total {
+    display: flex; justify-content: space-between; align-items: baseline; gap: v.$space-m;
+    margin: v.$space-m 0 0; padding-top: v.$space-m; max-width: none;
+    border-top: v.$border-thick solid v.$color-meadow;
+    font-size: v.$font-size-large;
+    strong { font-size: 1.3em; }
+  }
+}
+
+// Step 7: confirmation
+.confirmation {
+  display: grid; gap: v.$space-l; align-items: start;
+  background: v.$color-white; border-radius: v.$radius-lg; padding: v.$space-l;
+  border: v.$border-thin solid v.$color-border-soft; box-shadow: v.$shadow-low;
+  @include m.from-tablet { grid-template-columns: 14em 1fr; padding: v.$space-xl; }
+
+  &__image { width: 100%; max-width: 16em; border-radius: v.$radius-lg; }
+  h2 { margin-top: 0; }
+
+  &__badge {
+    display: inline-flex; align-items: center; gap: v.$space-s;
+    padding: v.$space-xs v.$space-m; border-radius: v.$radius-pill;
+    background: v.$color-success-soft; color: v.$color-success; font-weight: v.$font-weight-bold;
+  }
+
+  &__number { font-size: v.$font-size-large; letter-spacing: 0.03em; }
+  // Narrower label column: there is less room next to the image
+  .summary div { @include m.from-tablet { grid-template-columns: 8em 1fr; } }
+  &__countdown { color: v.$color-ink-soft; }
+}

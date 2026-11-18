@@ -1,0 +1,55 @@
+@use "../variables" as v;
+@use "../mixins" as m;
+
+// Progress bar of the booking flow. Not clickable.
+// Done = check mark, current = thick ring + bold + aria-current, upcoming = grey ring. Never colour alone.
+.progress {
+  margin: 0 0 v.$space-l;
+
+  &__list {
+    display: flex; justify-content: space-between; gap: v.$space-xs;
+    list-style: none; padding: 0; margin: 0;
+  }
+
+  &__step {
+    flex: 1 1 0; position: relative;
+    display: flex; flex-direction: column; align-items: center; gap: v.$space-xs;
+    text-align: center; color: v.$color-ink-soft;
+
+    // Line between the markers
+    &:not(:first-child)::before {
+      content: ""; position: absolute; top: 1.15em; right: 50%; width: 100%; height: 0.2em;
+      background: v.$color-border-soft; z-index: 0;
+    }
+    &--done:not(:first-child)::before, &--current:not(:first-child)::before { background: v.$color-forest; }
+  }
+
+  &__marker {
+    position: relative; z-index: 1;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 2.3em; height: 2.3em; border-radius: 50%;
+    border: v.$border-thick solid v.$color-border; background: v.$color-white; color: v.$color-ink-soft;
+    font-weight: v.$font-weight-bold;
+  }
+
+  &__step--done { color: v.$color-ink; }
+  &__step--done &__marker { background: v.$color-forest; border-color: v.$color-forest; color: v.$color-white; }
+
+  &__step--current { color: v.$color-ink; font-weight: v.$font-weight-bold; }
+  &__step--current &__marker { border: 0.25em solid v.$color-forest; color: v.$color-forest; box-shadow: 0 0 0 0.3em v.$color-meadow; }
+  &__step--current &__label { text-decoration: underline; text-decoration-thickness: 0.12em; text-underline-offset: 0.2em; }
+
+  // On a phone the names do not fit: markers only, and the current step as text below.
+  &__label {
+    @include m.visually-hidden;
+    @include m.from-tablet {
+      position: static; width: auto; height: auto; margin: 0; overflow: visible; clip: auto; white-space: normal;
+      font-size: v.$font-size-small;
+    }
+  }
+
+  &__summary {
+    margin: v.$space-s auto 0; font-weight: v.$font-weight-bold; text-align: center;
+    @include m.from-tablet { display: none; }
+  }
+}

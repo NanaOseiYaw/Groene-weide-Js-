@@ -1,0 +1,17 @@
+@use "../variables" as v;
+
+// Alerts: colour + icon + text. Use Alert.razor (it adds the right icon and ARIA role).
+.alert {
+  display: flex; gap: v.$space-m; align-items: flex-start;
+  padding: v.$space-m v.$space-l; margin: v.$space-m 0;
+  border: v.$border-thin solid v.$color-info; border-left-width: 0.4em; border-radius: v.$radius;
+  background: v.$color-info-soft; color: v.$color-ink;
+
+  &__icon { flex: none; color: v.$color-info; .icon { width: 1.5em; height: 1.5em; } }
+  &__body { min-width: 0; > :last-child { margin-bottom: 0; } }
+  &__title { font-weight: v.$font-weight-bold; margin-bottom: v.$space-xs; }
+
+  &--error { border-color: v.$color-error; background: v.$color-error-soft; .alert__icon { color: v.$color-error; } }
+  &--success { border-color: v.$color-success; background: v.$color-success-soft; .alert__icon { color: v.$color-success; } }
+  &--warning { border-color: v.$color-warning; background: v.$color-warning-soft; .alert__icon { color: v.$color-warning; } }
+}

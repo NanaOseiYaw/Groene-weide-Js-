@@ -1,0 +1,52 @@
+@use "../variables" as v;
+@use "../mixins" as m;
+
+// Staff spot overview: colour + icon + text per spot. White text passes 4.5 : 1 on every status colour.
+
+.spot-legend {
+  display: flex; flex-wrap: wrap; gap: v.$space-s v.$space-l; list-style: none; padding: 0; margin: 0 0 v.$space-m;
+  li { display: inline-flex; align-items: center; gap: v.$space-s; }
+
+  &__swatch {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 1.7em; height: 1.7em; border-radius: v.$radius-sm;
+    .icon { width: 1em; height: 1em; }
+  }
+}
+
+.field-group {
+  margin: v.$space-xl 0;
+
+  &__header {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: v.$space-m;
+    h2 { margin: 0; }
+    .btn-row { margin: 0; }
+  }
+
+  &__count { font-weight: v.$font-weight-regular; font-size: 0.75em; }
+}
+
+.spot-tiles {
+  display: grid; gap: v.$space-s; padding: 0; margin: v.$space-m 0; list-style: none;
+  grid-template-columns: repeat(auto-fill, minmax(10em, 1fr));
+}
+
+.spot-tile {
+  display: flex; flex-direction: column; gap: v.$space-xs;
+  padding: v.$space-s; border-radius: v.$radius; color: v.$color-white;
+
+  &--free { background: v.$status-free; }
+  &--reserved { background: v.$status-almost-full; }
+  &--held { background: v.$status-held; }
+  // Unavailable: red plus a thick dark inner frame (shape, not only colour)
+  &--unavailable { background: v.$status-full; box-shadow: inset 0 0 0 0.2em v.$admin-text; }
+
+  &__name { font-weight: v.$font-weight-bold; font-size: v.$font-size-large; }
+  &__status { display: flex; gap: v.$space-xs; align-items: flex-start; font-size: v.$font-size-small; overflow-wrap: anywhere; }
+  &__status .icon { margin-top: 0.15em; }
+
+  // White button on the coloured tile
+  &__action { margin-top: auto; }
+}
+
+.needs-move { margin-top: v.$space-xl; }

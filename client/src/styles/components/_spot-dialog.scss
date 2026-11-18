@@ -1,0 +1,135 @@
+@use "../variables" as v;
+@use "../mixins" as m;
+
+// Step 5: field banner, spot list, photo placeholder, pop-up and gallery.
+
+// ---------- Field banner (impression of the field, clearly labelled as such) ----------
+.field-banner {
+  display: grid; gap: v.$space-m; align-items: center; margin-bottom: v.$space-l;
+  @include m.from-tablet { grid-template-columns: 16em 1fr; gap: v.$space-l; }
+
+  &__image { width: 100%; aspect-ratio: 8 / 5; object-fit: cover; border-radius: v.$radius-lg; }
+  &__text p { margin-bottom: v.$space-s; }
+  &__note { color: v.$color-ink-soft; font-size: v.$font-size-small; }
+}
+
+// ---------- Spot list ----------
+.spot-list {
+  display: grid; gap: v.$space-m; padding: 0; margin: v.$space-m 0; list-style: none;
+  grid-template-columns: repeat(auto-fill, minmax(min(15em, 100%), 1fr));
+
+  &__count { color: v.$color-ink-soft; }
+}
+
+.spot-card {
+  @include m.focus-ring;
+  @include m.transition(border-color, box-shadow);
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column; align-items: stretch;
+  padding: 0; overflow: hidden;
+  font: inherit; text-align: left; color: v.$color-ink; background: v.$color-white;
+  border: v.$border-thick solid v.$color-border-soft; border-radius: v.$radius-lg;
+  box-shadow: v.$shadow-low;
+  cursor: pointer;
+
+  &:hover { border-color: v.$color-forest; box-shadow: v.$shadow-high; }
+
+  &__photo { width: 100%; aspect-ratio: 8 / 5; object-fit: cover; }
+
+  &__body { display: flex; flex-direction: column; gap: v.$space-xs; padding: v.$space-m; flex: 1; }
+  // Body font: Georgia draws old-style digits, so "T01" would read like "To1"
+  &__name { font-family: v.$font-body; font-weight: v.$font-weight-bold; font-size: v.$font-size-large; }
+  &__facts {
+    display: flex; flex-direction: column; gap: 0.1em; color: v.$color-ink-soft;
+    > span { display: inline-flex; align-items: center; gap: v.$space-s; }
+    .icon { color: v.$color-forest; }
+  }
+  &__price { font-weight: v.$font-weight-bold; color: v.$color-forest; margin-top: auto; padding-top: v.$space-s; }
+
+  // Chosen: thicker border + "Gekozen" label (not colour alone)
+  &--chosen { border-color: v.$color-forest; border-width: 0.25em; }
+  &__chosen {
+    align-self: flex-start; display: inline-flex; align-items: center; gap: v.$space-xs;
+    padding: 0 v.$space-s; border-radius: v.$radius-sm;
+    background: v.$color-forest; color: v.$color-white; font-weight: v.$font-weight-bold; font-size: v.$font-size-small;
+  }
+}
+
+// ---------- "Foto volgt" placeholder ----------
+.photo-placeholder {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: v.$space-xs;
+  aspect-ratio: 8 / 5; padding: v.$space-l; text-align: center;
+  background: repeating-linear-gradient(135deg, v.$color-meadow-soft 0 0.75em, v.$color-meadow 0.75em 1.5em);
+  color: v.$color-ink; border-radius: v.$radius-lg; margin-bottom: v.$space-m;
+
+  > .icon { width: 2.4em; height: 2.4em; color: v.$color-forest; }
+  &__title { font-weight: v.$font-weight-bold; font-size: v.$font-size-large; }
+  &__text { max-width: 26em; color: v.$color-ink-soft; background: v.$color-meadow-soft; padding: 0 v.$space-s; border-radius: v.$radius-sm; }
+
+  &--compact {
+    border-radius: 0; margin: 0; padding: v.$space-m;
+    > .icon { width: 1.8em; height: 1.8em; }
+    .photo-placeholder__title { font-size: 1em; background: v.$color-meadow-soft; padding: 0 v.$space-s; border-radius: v.$radius-sm; }
+  }
+}
+
+// ---------- Amenities ----------
+.amenities {
+  display: flex; flex-wrap: wrap; gap: v.$space-s; list-style: none; padding: 0; margin: 0 0 v.$space-m;
+  li {
+    display: inline-flex; align-items: center; gap: v.$space-xs;
+    padding: v.$space-xs v.$space-m; border-radius: v.$radius-pill;
+    background: v.$color-meadow-soft; border: v.$border-thin solid v.$color-meadow;
+  }
+  .icon { color: v.$color-forest; }
+}
+
+// ---------- Pop-up (native <dialog>) ----------
+.spot-dialog {
+  width: calc(100% - 2em); max-width: 48em; max-height: 92vh;
+  padding: 0; overflow: auto;
+  color: v.$color-ink; background: v.$color-white;
+  border: 0; border-radius: v.$radius-lg; box-shadow: v.$shadow-high;
+
+  &::backdrop { background: v.$backdrop; }
+
+  // On a phone the pop-up fills the whole screen
+  @include m.below-tablet {
+    width: 100%; max-width: 100%; height: 100%; max-height: 100%; margin: 0; border-radius: 0;
+  }
+
+  &__content { padding: 0 v.$space-l v.$space-l; }
+
+  // The header stays at the top, so the close button is always visible
+  &__header {
+    position: sticky; top: 0; z-index: 1;
+    display: flex; align-items: center; justify-content: space-between; gap: v.$space-m;
+    padding: v.$space-m 0; background: v.$color-white;
+    h2 { margin: 0; font-family: v.$font-body; } // spot codes: regular digits
+  }
+
+  &__close { padding-inline: v.$space-m; }
+
+  &__price {
+    display: flex; flex-wrap: wrap; justify-content: space-between; gap: v.$space-s v.$space-l;
+    background: v.$color-meadow-soft; border-radius: v.$radius; padding: v.$space-m v.$space-l;
+    p { margin: 0; }
+  }
+  &__total { font-size: v.$font-size-large; }
+}
+
+// ---------- Gallery: swipe with CSS scroll-snap, or use the buttons ----------
+.gallery {
+  margin-bottom: v.$space-m;
+
+  &__track {
+    @include m.focus-ring;
+    display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+    border-radius: v.$radius-lg; background: v.$color-meadow-soft;
+  }
+
+  &__photo { flex: 0 0 100%; width: 100%; aspect-ratio: 8 / 5; object-fit: cover; scroll-snap-align: start; }
+
+  &__controls { display: flex; align-items: center; justify-content: space-between; gap: v.$space-s; margin-top: v.$space-s; }
+  &__counter { font-weight: v.$font-weight-bold; white-space: nowrap; }
+}

@@ -1,0 +1,151 @@
+@use "../variables" as v;
+@use "../mixins" as m;
+
+// Staff section: calmer and larger than the guest site, extra high contrast (black on white), no images.
+// Everything inside .admin is scoped, so the guest site is not affected.
+.admin {
+  flex: 1 0 auto; display: flex; flex-direction: column;
+  font-size: v.$admin-font-base;           // 20px instead of 18px
+  background: v.$admin-bg; color: v.$admin-text;
+
+  // Higher contrast for shared components
+  .field__hint, .table__meta, .table__note, .name-list__meta { color: v.$admin-text; }
+  input:not([type=checkbox]):not([type=radio]):not([type=file]), select, textarea { border-color: v.$admin-border; }
+  .card { box-shadow: none; border: v.$border-thick solid v.$admin-border; }
+  .table-scroll { border: v.$border-thick solid v.$admin-border; }
+  .table th { background: v.$admin-header; color: v.$color-white; }
+  .table th .table__sort { color: v.$color-white; @include m.focus-ring-light; }
+  .table tbody tr:nth-child(even) { background: v.$admin-stripe; }
+  .table td { border-bottom-color: v.$color-border; }
+  h1 { font-family: v.$font-body; }        // plain and calm: no serif headings in the staff section
+  h2, h3 { font-family: v.$font-body; }
+}
+
+// ---------- Header and menu ----------
+.admin-header {
+  background: v.$admin-header; color: v.$color-white;
+
+  &__inner {
+    max-width: v.$content-max; margin: 0 auto; padding: v.$space-s v.$space-m;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: v.$space-s v.$space-l;
+  }
+
+  &__brand {
+    @include m.tap-target;
+    @include m.focus-ring-light;
+    display: inline-flex; align-items: center; gap: v.$space-s;
+    color: v.$color-white; font-weight: v.$font-weight-bold; font-size: v.$font-size-large; text-decoration: none;
+    &:hover { color: v.$color-white; text-decoration: underline; }
+  }
+  &__sub { font-weight: v.$font-weight-regular; }
+
+  &__user {
+    display: flex; flex-wrap: wrap; align-items: center; gap: v.$space-s v.$space-m;
+    form { margin: 0; }
+  }
+}
+
+.admin-nav {
+  background: v.$color-forest-dark; border-top: v.$border-thin solid v.$color-divider-on-dark;
+
+  &__list {
+    max-width: v.$content-max; margin: 0 auto; padding: 0 v.$space-m;
+    display: flex; flex-wrap: wrap; gap: v.$space-xs;
+    list-style: none;
+  }
+
+  &__link {
+    @include m.tap-target;
+    @include m.focus-ring-light;
+    display: inline-flex; align-items: center; gap: v.$space-s;
+    padding: v.$space-s v.$space-m;
+    color: v.$color-white; font-weight: v.$font-weight-bold; text-decoration: none;
+    border-bottom: 0.3em solid transparent;
+    &:hover { color: v.$color-white; text-decoration: underline; }
+    // Current page: white bar below and underlined text (not colour alone)
+    &.active { border-bottom-color: v.$color-buttercup; text-decoration: underline; text-decoration-thickness: 0.12em; }
+  }
+}
+
+.admin-main {
+  flex: 1 0 auto; width: 100%;
+  max-width: v.$content-max; margin: 0 auto; padding: v.$space-l v.$space-m v.$space-xxl;
+  &:focus { outline: none; }
+}
+
+// ---------- Sign-in ----------
+.login {
+  max-width: 28em; margin: v.$space-l auto;
+  padding: v.$space-xl; border: v.$border-thick solid v.$admin-border; border-radius: v.$radius-lg;
+  h1 { font-size: v.$font-size-h2; }
+  input:not([type=checkbox]) { max-width: none; }
+}
+
+// ---------- Reservation list ----------
+.filters {
+  display: grid; gap: 0 v.$space-m;
+  grid-template-columns: repeat(auto-fit, minmax(min(12em, 100%), 1fr));
+  .field { margin-bottom: v.$space-m; }
+  &__actions { margin-top: 0; margin-bottom: v.$space-m; }
+}
+
+// ---------- Daily overview ----------
+.day-picker {
+  display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0 v.$space-l;
+  .field { margin-bottom: 0; }
+  .btn-row { margin-top: v.$space-s; }
+}
+
+.day-title { margin-top: v.$space-l; &::first-letter { text-transform: uppercase; } } // "Dinsdag 20 juli", month stays lowercase
+
+.stat-tiles {
+  display: grid; gap: v.$space-m; padding: 0; margin: v.$space-m 0 v.$space-l; list-style: none;
+  grid-template-columns: repeat(auto-fit, minmax(min(13em, 100%), 1fr));
+
+  &__item {
+    display: flex; flex-direction: column; align-items: flex-start; gap: v.$space-xs;
+    padding: v.$space-m; border: v.$border-thick solid v.$admin-border; border-radius: v.$radius;
+    > .icon { width: 1.4em; height: 1.4em; color: v.$color-forest; }
+  }
+  &__number { display: block; font-size: 2.4em; font-weight: v.$font-weight-bold; line-height: 1.1; }
+}
+
+.day-lists {
+  display: grid; gap: v.$space-l;
+  @include m.from-tablet { grid-template-columns: 1fr 1fr; }
+  h3 { display: flex; align-items: center; gap: v.$space-s; }
+  &__empty { color: v.$admin-text; }
+}
+
+.name-list {
+  padding: 0; margin: 0; list-style: none;
+  li { padding: v.$space-s 0; border-bottom: v.$border-thin solid v.$color-border; }
+  strong { display: inline-block; min-width: 3em; }
+  &__meta { display: block; font-size: v.$font-size-small; }
+}
+
+.month-overview { margin-top: v.$space-xl; }
+
+// ---------- Photos ----------
+.photo-admin {
+  list-style: none; padding: 0; display: grid; gap: v.$space-m;
+
+  &__item {
+    display: grid; gap: v.$space-m; padding: v.$space-m;
+    border: v.$border-thick solid v.$admin-border; border-radius: v.$radius;
+    @include m.from-tablet { grid-template-columns: 15em 1fr; }
+    img { width: 100%; aspect-ratio: 8 / 5; object-fit: cover; border-radius: v.$radius-sm; }
+  }
+
+  &__fields label { display: block; font-weight: v.$font-weight-bold; margin-bottom: v.$space-xs; }
+}
+
+.upload { margin-top: v.$space-xl; }
+
+// ---------- Print: without menu, buttons and calendar ----------
+@media print {
+  .skip-link, .admin-nav, .admin-header__user, .no-print, .day-picker .btn-row, #blazor-error-ui { display: none !important; }
+  .admin-header { background: none; color: v.$admin-text; }
+  .admin-header__brand { color: v.$admin-text; }
+  .admin { font-size: 1em; }
+}

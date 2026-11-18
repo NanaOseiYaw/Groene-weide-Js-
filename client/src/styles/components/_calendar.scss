@@ -1,0 +1,133 @@
+@use "sass:math";
+@use "../variables" as v;
+@use "../mixins" as m;
+
+// Colourful calendar (Feature 3). Every day: colour + icon + text. White text passes 4.5 : 1 on every status colour.
+.calendar {
+  // Slightly smaller on a phone, so 7 days fit side by side with tap targets of at least 2.75em
+  font-size: 0.9em;
+  @include m.from-tablet { font-size: 1em; }
+
+  background: v.$color-white; border: v.$border-thin solid v.$color-border-soft; border-radius: v.$radius-lg;
+  padding: v.$space-m; box-shadow: v.$shadow-low;
+  @include m.from-tablet { padding: v.$space-l; }
+
+  &__header {
+    display: flex; align-items: center; justify-content: space-between; gap: v.$space-s;
+    margin-bottom: v.$space-m;
+  }
+
+  // Body font: regular digits for the year
+  &__month { margin: 0; font-family: v.$font-body; font-size: v.$font-size-h2; text-align: center; text-transform: capitalize; }
+
+  // Month buttons: icon only on a phone (the text stays available to screen readers)
+  &__nav { padding-inline: v.$space-m; }
+  // The calendar text is smaller on a phone; keep its buttons at the full tap size there
+  .btn { @include m.below-tablet { font-size: math.div(1, 0.9) * 1em; } }
+  &__nav-text { @include m.below-tablet { @include m.visually-hidden; } }
+
+  &__grid {
+    width: 100%; table-layout: fixed;
+    border-collapse: separate; border-spacing: 0.25em;
+    margin: 0 -0.25em;
+
+    th { font-weight: v.$font-weight-bold; padding: v.$space-xs 0; text-align: center; color: v.$color-ink-soft; }
+    abbr { text-decoration: none; }
+    td { padding: 0; vertical-align: top; }
+  }
+
+  &__day {
+    @include m.focus-ring;
+    @include m.transition(border-color, box-shadow);
+    position: relative;
+    width: 100%; min-width: v.$tap-target-min; min-height: 3.5em;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 0.15em;
+    padding: v.$space-xs 0.1em v.$space-s;
+    font: inherit; line-height: 1.15; color: v.$color-white;
+    border: 0.18em solid transparent; border-radius: v.$radius;
+    cursor: pointer;
+
+    @include m.from-tablet { min-height: 6em; }
+
+    &:hover:not(.calendar__day--disabled) { border-color: v.$color-ink; }
+
+    // Status colours (also used in the legend)
+    &--free { background: v.$status-free; color: v.$color-white; }
+    &--almost-full { background: v.$status-almost-full; color: v.$color-white; }
+    &--full { background: v.$status-full; color: v.$color-white; }
+    &--deal { background: v.$status-deal; color: v.$color-white; }
+    &--closed { background: v.$status-closed; color: v.$color-white; }
+
+    &--disabled { cursor: not-allowed; }
+
+    // Chosen period: thick dark border with a white inner ring (shape, not only colour)
+    &--in-range, &--arrival, &--departure, &--selected {
+      border-color: v.$color-ink;
+      box-shadow: inset 0 0 0 0.15em v.$color-white;
+    }
+
+    &--today .calendar__day-number { text-decoration: underline; text-decoration-thickness: 0.12em; }
+  }
+
+  &__day-number { font-weight: v.$font-weight-bold; font-size: 1.1em; }
+
+  &__icon .icon { width: 1.05em; height: 1.05em; stroke-width: 2.5; }
+
+  // Label and price: on a phone only the icon (the full text is in aria-label and in the legend)
+  &__label, &__price, &__stats {
+    display: none; font-size: 0.8em;
+    @include m.from-tablet { display: block; }
+  }
+  &__price { font-weight: v.$font-weight-bold; }
+
+  &__stats {
+    display: flex; gap: v.$space-xs;
+    > span { display: inline-flex; align-items: center; gap: 0.1em; }
+    .icon { width: 0.9em; height: 0.9em; }
+  }
+  &--stats &__label { display: flex; font-size: 0.75em; }
+  // On a phone the cells are too narrow for arrivals and departures: show only the percentage there
+  &--stats &__stats {
+    display: none; font-size: 0.75em;
+    @include m.from-tablet { display: flex; }
+  }
+
+  &__marker {
+    position: absolute; left: 50%; bottom: -0.65em; transform: translateX(-50%);
+    padding: 0 0.35em; border-radius: v.$radius-sm;
+    background: v.$color-white; color: v.$color-ink; border: v.$border-thin solid v.$color-ink;
+    font-size: 0.65em; font-weight: v.$font-weight-bold; white-space: nowrap;
+  }
+
+  &__legend {
+    display: flex; flex-wrap: wrap; gap: v.$space-s v.$space-l;
+    list-style: none; padding: v.$space-m 0 0; margin: v.$space-l 0 0;
+    border-top: v.$border-thin solid v.$color-border-soft;
+
+    li { display: inline-flex; align-items: center; gap: v.$space-s; }
+  }
+
+  &__swatch {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 1.7em; height: 1.7em; border-radius: v.$radius-sm;
+    .icon { width: 1em; height: 1em; stroke-width: 2.5; }
+  }
+
+  &__legend-plain { display: inline-flex; align-items: center; gap: v.$space-xs; }
+  .calendar__legend &__legend-price { display: block; flex-basis: 100%; }
+  // Inside running text the icon sits on the text line instead of shifting the baseline
+  &__legend-price &__legend-plain {
+    display: inline; white-space: nowrap;
+    .icon { vertical-align: -0.15em; margin-right: 0.15em; }
+  }
+
+  &__selection {
+    display: grid; gap: v.$space-s; margin: v.$space-l 0 v.$space-m;
+    @include m.from-tablet { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    div { background: v.$color-meadow-soft; border-radius: v.$radius; padding: v.$space-s v.$space-m; }
+    dt { font-weight: v.$font-weight-bold; display: flex; align-items: center; gap: v.$space-xs; }
+    dt .icon { color: v.$color-forest; }
+    dd { margin: 0; }
+  }
+}
