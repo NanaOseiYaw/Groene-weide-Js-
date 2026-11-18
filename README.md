@@ -6,7 +6,7 @@ This is the JavaScript version of the original C# (Blazor) project. The migratio
 
 | Part | Technology | Status |
 | :-- | :-- | :-- |
-| Backend (`server/`) | Node.js 22, Express 5, SQLite (`better-sqlite3`) | Phases 1–2 done: database, seed, public booking API (calendar, spots, booking, payment, e-mail). Staff API and sign-in: phase 3 |
+| Backend (`server/`) | Node.js 22, Express 5, SQLite (`better-sqlite3`) | Phases 1–3 done: database, public booking API, staff sign-in and staff API (daily overview, reservations, phone booking, spots out of use, photos) |
 | Frontend (`client/`) | Vue 3 + Vite, existing Sass styling | Not started (phase 4) |
 | AI (separate) | Python, by Mohammed, behind an HTTP contract | Not started (phase 7) |
 
@@ -27,6 +27,20 @@ npm run dev
 The API runs on http://localhost:3000. Check it with http://localhost:3000/api/health.
 
 On the first start the server creates the database file `server/data/groeneweide.db`, builds the tables and fills them with dummy data (60 spots, test reservations in 2027). In development `npm run dev` restarts the server automatically when you save a file in `server/src`.
+
+## Staff accounts
+
+There is no registration page and no default account. Create an account in the terminal (from the repository root):
+
+```bash
+npm run create-staff -- "Anita" "anita@voorbeeld.nl" Staff
+```
+
+- The role is `Staff` (receptie) or `Admin` (beheerder).
+- The password is asked for twice and is invisible while typing. At least 10 characters.
+- The password never ends up in the code, git, the shell history or a log; the database only stores a hash.
+- Sign in with `POST /api/auth/login` (the sign-in page follows with the frontend). "Onthoud mij" keeps you signed in for 30 days. After 5 wrong passwords the account is locked for 10 minutes.
+- Accounts from the C# version cannot be carried over (different password format): create them again with this command.
 
 ## Configuration
 
@@ -52,6 +66,7 @@ Run these from the repository root.
 | `npm run db:migrate` | Apply new database migrations without starting the server |
 | `npm run db:seed` | Add the dummy data to an empty database |
 | `npm run db:reset` | Delete the local database and start again with fresh dummy data (stop the server first; refused in production) |
+| `npm run create-staff -- "Naam" "mail" Staff` | Create a staff account (see above) |
 
 ## Folders
 
@@ -68,7 +83,10 @@ server/
       seed.js        dummy data for development
     lib/             small shared helpers: dates, Dutch formatting, validation, errors, e-mail, payment
     modules/         one folder per feature: *.service.js (rules + SQL) and *.routes.js (HTTP)
+      admin/         staff: daily overview, reservation list, phone booking, spots out of use
+      auth/          staff accounts, sign-in, sessions, the requireStaff check
       availability/  colourful calendar and the period check
+      photos/        photo upload and management per spot
       pricing/       price per night with deal days
       reservations/  guest booking, payment, confirmation e-mail
       settings/      season and thresholds; GET /api/campsite

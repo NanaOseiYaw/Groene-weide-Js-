@@ -6,6 +6,7 @@ import { migrate } from '../src/db/migrate.js';
 import { seedDatabase } from '../src/db/seed.js';
 import { createMemoryEmailSender } from '../src/lib/email.js';
 import { createFakePaymentService } from '../src/lib/payment.js';
+import { createStaffUser, findStaffByEmail } from '../src/modules/auth/staff-users.service.js';
 
 /**
  * "Today" in the tests. The seed has reservations in the 2027 season, so tests use a fixed
@@ -28,9 +29,9 @@ export function createSilentLogger() {
   return { errors, warnings, error: (...args) => errors.push(args), warn: (...args) => warnings.push(args), log() {}, info() {} };
 }
 
-/** Settings for tests: the in-memory database and no payment delay. */
-export function createTestConfig() {
-  return loadConfig({ NODE_ENV: 'test', DATABASE_PATH: ':memory:', PAYMENT_DELAY_MS: '0' });
+/** Settings for tests: the in-memory database, no payment delay, and optionally extra variables. */
+export function createTestConfig(env = {}) {
+  return loadConfig({ NODE_ENV: 'test', DATABASE_PATH: ':memory:', PAYMENT_DELAY_MS: '0', ...env });
 }
 
 /**
@@ -43,8 +44,16 @@ export async function startTestServer({
   today = TEST_TODAY,
   payment = createFakePaymentService({ delayMs: 0 }),
   email = createMemoryEmailSender(),
+  config = createTestConfig(),
 } = {}) {
-  const app = createApp({ db, config: createTestConfig(), logger, clock: { today: () => today }, payment, email });
+  // "now" can be moved forward by tests (e.g. to the end of a lockout): server.clock.advanceMinutes(10).
+  let now = new Date(`${today}T10:00:00Z`);
+  const clock = {
+    today: () => today,
+    now: () => now,
+    advanceMinutes: (minutes) => { now = new Date(now.getTime() + minutes * 60_000); },
+  };
+  const app = createApp({ db, config, logger, clock, payment, email });
   const server = await new Promise((resolve) => {
     const listening = app.listen(0, () => resolve(listening));
   });
@@ -53,15 +62,32 @@ export async function startTestServer({
     db,
     logger,
     email,
+    clock,
     baseUrl,
-    /** fetch() relative to the server, with a JSON body when `body` is given. Returns { status, body }. */
-    async request(path, { method = 'GET', body } = {}) {
+    /**
+     * fetch() relative to the server. `body` is sent as JSON, a FormData as multipart.
+     * Returns { status, body, headers }; body is null for an empty response (204).
+     */
+    async request(path, { method = 'GET', body, cookie, headers = {} } = {}) {
+      const isForm = body instanceof FormData;
       const response = await fetch(baseUrl + path, {
         method,
-        headers: body === undefined ? {} : { 'Content-Type': 'application/json' },
-        body: body === undefined ? undefined : JSON.stringify(body),
+        headers: {
+          ...(body === undefined || isForm ? {} : { 'Content-Type': 'application/json' }),
+          ...(cookie ? { Cookie: cookie } : {}),
+          ...headers,
+        },
+        body: body === undefined ? undefined : isForm ? body : JSON.stringify(body),
       });
-      return { status: response.status, body: await response.json() };
+      const raw = await response.text();
+      return { status: response.status, body: raw ? JSON.parse(raw) : null, headers: response.headers };
+    },
+    /** Creates a staff account and signs in. Returns the cookie to send with staff requests. */
+    async signIn({ email = 'anita@example.com', password = 'een-lang-wachtwoord', role = 'Staff', rememberMe = false } = {}) {
+      if (!findStaffByEmail(db, email)) await createStaffUser(db, { name: 'Anita', email, password, role });
+      const { status, headers } = await this.request('/api/auth/login', { method: 'POST', body: { email, password, rememberMe } });
+      if (status !== 200) throw new Error(`Sign-in failed with ${status}`);
+      return headers.get('set-cookie').split(';')[0];
     },
     close: () => new Promise((resolve) => server.close(() => { db.close(); resolve(); })),
   };

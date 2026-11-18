@@ -25,7 +25,9 @@ if (config.seedOnStart && seedDatabase(db).seeded) {
 }
 
 const app = createApp({ db, config });
-const server = app.listen(config.port, () => {
+const server = app.listen(config.port, (error) => {
+  // Express 5 also calls this function when starting fails; the 'error' handler below explains why.
+  if (error) return;
   console.log(`Groene Weide API (${config.nodeEnv}) on http://localhost:${server.address().port}`);
 });
 

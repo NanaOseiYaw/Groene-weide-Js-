@@ -10,7 +10,11 @@ import { createLogEmailSender } from './lib/email.js';
 import { errorHandler, notFound } from './lib/errors.js';
 import { createFakePaymentService } from './lib/payment.js';
 import { securityHeaders } from './lib/security-headers.js';
+import { createAdminRouter } from './modules/admin/admin.routes.js';
+import { checkOrigin, loadSession, requireStaff } from './modules/auth/auth.middleware.js';
+import { createAuthRouter } from './modules/auth/auth.routes.js';
 import { createAvailabilityRouter } from './modules/availability/availability.routes.js';
+import { createPhotosRouter } from './modules/photos/photos.routes.js';
 import { createReservationsRouter } from './modules/reservations/reservations.routes.js';
 import { createCampsiteRouter } from './modules/settings/settings.routes.js';
 import { createSpotsRouter } from './modules/spots/spots.routes.js';
@@ -20,7 +24,7 @@ import { createSpotsRouter } from './modules/spots/spots.routes.js';
  * @param {import('better-sqlite3').Database} options.db  open database connection
  * @param {object} options.config  result of loadConfig()
  * @param {Console} [options.logger]
- * @param {{ today: () => string }} [options.clock]  what "today" is ('YYYY-MM-DD')
+ * @param {{ today: () => string, now: () => Date }} [options.clock]  what "today" ('YYYY-MM-DD') and "now" are
  * @param {{ pay: Function }} [options.payment]
  * @param {{ send: Function }} [options.email]
  */
@@ -28,7 +32,7 @@ export function createApp({
   db,
   config,
   logger = console,
-  clock = { today: () => todayIn(config.timeZone) },
+  clock = { today: () => todayIn(config.timeZone), now: () => new Date() },
   payment = createFakePaymentService({ delayMs: config.paymentDelayMs }),
   email = createLogEmailSender({ folder: config.mailFolder, logger }),
 }) {
@@ -36,12 +40,18 @@ export function createApp({
 
   const app = express();
   app.disable('x-powered-by'); // do not advertise which framework we use
+  if (config.isProduction) app.set('trust proxy', 1); // behind the hosting's HTTPS proxy: trust its headers
 
   app.use(securityHeaders);
-  app.use(express.json({ limit: '100kb' }));
+
+  // Uploaded spot photos are public (guests see them in the spot pop-up).
+  app.use('/uploads/spots', express.static(config.spotPhotosFolder, { index: false, dotfiles: 'deny', fallthrough: true, maxAge: '7d' }));
 
   // All JSON endpoints live under /api.
   const api = express.Router();
+  api.use(express.json({ limit: '100kb' }));
+  api.use(checkOrigin(deps));
+  api.use(loadSession(deps));
 
   // Health check for hosting and monitoring: is the server up and can it read the database?
   api.get('/health', (req, res) => {
@@ -59,6 +69,10 @@ export function createApp({
   api.use(createSpotsRouter(deps));
   api.use(createAvailabilityRouter(deps));
   api.use(createReservationsRouter(deps));
+
+  // Sign-in, and everything behind it. requireStaff runs before any staff route.
+  api.use(createAuthRouter(deps));
+  api.use('/admin', requireStaff, createAdminRouter(deps), createPhotosRouter(deps));
 
   app.use('/api', api);
 

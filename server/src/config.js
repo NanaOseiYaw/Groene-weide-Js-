@@ -49,6 +49,11 @@ export function loadConfig(env = process.env) {
     mailFolder: path.resolve(serverRoot, env.MAIL_FOLDER || 'data/mail'),
     // Simulated payment: how long "Betalen…" takes, so the loading state is visible.
     paymentDelayMs: readNonNegativeInteger('PAYMENT_DELAY_MS', env.PAYMENT_DELAY_MS, 1500),
+    // Uploaded spot photos (served publicly at /uploads/spots/<file>).
+    spotPhotosFolder: path.join(path.resolve(serverRoot, env.UPLOADS_FOLDER || 'data/uploads'), 'spots'),
+    // Other websites (origins) that may send requests that change something, e.g. a separately hosted frontend.
+    // The site itself is always allowed. Comma separated: https://a.example,https://b.example
+    allowedOrigins: Object.freeze(readList(env.ALLOWED_ORIGINS)),
     campsite: Object.freeze({
       name: env.CAMPSITE_NAME || 'Camping De Groene Weide',
       phone: env.CAMPSITE_PHONE || '',
@@ -64,6 +69,10 @@ function readPort(value, fallback) {
     throw new ConfigError(`PORT must be a whole number between 0 and 65535 (got "${value}").`);
   }
   return port;
+}
+
+function readList(value) {
+  return (value ?? '').split(',').map((item) => item.trim()).filter(Boolean);
 }
 
 function readNonNegativeInteger(name, value, fallback) {
