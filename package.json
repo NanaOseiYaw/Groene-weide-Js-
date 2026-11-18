@@ -4,14 +4,18 @@
   "private": true,
   "description": "Camping De Groene Weide: booking site for guests and a staff section (Node.js + Vue).",
   "license": "UNLICENSED",
+  "type": "module",
   "engines": {
-    "node": ">=22.11"
+    "node": ">=22.12"
   },
   "workspaces": [
-    "server"
+    "shared",
+    "server",
+    "client"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace server",
+    "dev": "node scripts/dev.js",
+    "build": "npm run build --workspace client",
     "start": "npm run start --workspace server",
     "test": "npm run test --workspace server",
     "db:migrate": "npm run db:migrate --workspace server",

@@ -1,5 +1,11 @@
-// Entry point of all styling. AspNetCore.SassCompiler turns this into wwwroot/css/main.css.
+// Entry point of all styling. Vite compiles it (imported once in src/main.js).
 // Files starting with _ are not compiled on their own; they are loaded here.
+//
+// Copied from the C# project (wwwroot/scss) and kept the same on purpose: same tokens, same
+// BEM class names, the Vue components use the same markup. Changes for Vue, nothing else:
+// - _base.scss: the Blazor error bar is gone; #app keeps the column layout of <body>
+// - components/_admin.scss: the Blazor error bar is no longer hidden when printing
+// Design choices and contrast ratios: docs/design-system.md.
 
 // Foundation
 @use "base";

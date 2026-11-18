@@ -1,8 +1,8 @@
 // Unit tests for the small building blocks: dates, Dutch formatting, prices and the season.
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { addDays, daysBetween, eachNight, isIsoDate, todayIn } from '../src/lib/dates.js';
-import { euro, formatDate, formatLongDate, formatNights, formatShortDate, reservationNumber } from '../src/lib/format.js';
+import { addDays, daysBetween, eachNight, isIsoDate, todayIn } from '@groene-weide/shared/dates';
+import { euro, formatDate, formatLongDate, formatNights, formatShortDate, reservationNumber } from '@groene-weide/shared/format';
 import { dealFor, discountedCents } from '../src/modules/pricing/price-rules.js';
 import { createSettings } from '../src/modules/settings/settings.service.js';
 

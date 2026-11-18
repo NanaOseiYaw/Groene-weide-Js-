@@ -1,7 +1,7 @@
 // The "settings" table in a convenient form: the season and the "almost full" threshold
 // (port of Services/SettingsService.cs). Missing or broken values fall back to safe defaults.
-import { makeDate, parts } from '../../lib/dates.js';
-import { formatDayMonth } from '../../lib/format.js';
+import { makeDate, parts } from '@groene-weide/shared/dates';
+import { formatDayMonth } from '@groene-weide/shared/format';
 
 const DEFAULTS = { almostFullThreshold: 3, seasonStart: '04-01', seasonEnd: '10-31' };
 

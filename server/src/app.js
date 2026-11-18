@@ -5,7 +5,8 @@
 // The real app uses the defaults; tests pass their own (an in-memory database, a fixed
 // "today", a payment that fails on purpose, an e-mail sender that keeps mails in memory).
 import express from 'express';
-import { todayIn } from './lib/dates.js';
+import { todayIn } from '@groene-weide/shared/dates';
+import { serveClientApp } from './lib/client-app.js';
 import { createLogEmailSender } from './lib/email.js';
 import { errorHandler, notFound } from './lib/errors.js';
 import { createFakePaymentService } from './lib/payment.js';
@@ -75,6 +76,9 @@ export function createApp({
   api.use('/admin', requireStaff, createAdminRouter(deps), createPhotosRouter(deps));
 
   app.use('/api', api);
+
+  // The built Vue frontend (production). Development uses the Vite dev server instead.
+  serveClientApp(app, config.clientFolder);
 
   app.use(notFound);
   app.use(errorHandler({ logger }));

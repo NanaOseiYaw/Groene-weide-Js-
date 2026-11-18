@@ -187,7 +187,7 @@ In development Vite serves the frontend on :5173 and proxies `/api` to Express o
 
 | Concern | Choice | Why |
 | :-- | :-- | :-- |
-| Runtime | Node.js 22 LTS (installed: 22.11) | |
+| Runtime | Node.js 22.12 or newer, current LTS recommended (this machine: 26) | Vite 8 needs 22.12+ (decided 18-11-2026) |
 | Web framework | **Express 5** | The most documented Node framework; small surface; easy for newcomers |
 | Database | **SQLite via `better-sqlite3`**, plain parameterised SQL | Keeps the current database engine. Synchronous transactions make "check overlap + insert" atomic by construction (rule 4). `schema.sql` already is the design. No ORM to learn |
 | Migrations | Numbered `server/src/db/migrations/*.sql` + ~30-line runner | |
@@ -195,12 +195,12 @@ In development Vite serves the frontend on :5173 and proxies `/api` to Express o
 | Sessions | `sessions` table + random token in an HttpOnly cookie | Same behaviour as the Identity cookie, ~60 lines, no extra package |
 | Validation | Small validator functions per module, Dutch messages | Same rules as the C# `DataAnnotations` |
 | Uploads | `multer` (memory, 5 MB limit) + magic-byte check | |
-| Frontend | **Vue 3 + Vite + vue-router** (recommended, see §9 Q2) | `.vue` files look like `.razor` files (markup + script + style, `v-if` ≈ `@if`, `v-for` ≈ `@foreach`, `v-model` ≈ `@bind`). Vite compiles SCSS natively |
+| Frontend | **Vue 3 + Vite 8 + Vue Router 4** | `.vue` files look like `.razor` files (markup + script + style, `v-if` ≈ `@if`, `v-for` ≈ `@foreach`, `v-model` ≈ `@bind`). Vite compiles SCSS natively. Vue Router 4 rather than 5: same API, far fewer build dependencies |
 | Styling | Existing SCSS via the `sass` package | Same dart-sass compiler the C# project used |
 | Tests | `node:test` (built in) for the API; Playwright later for a few end-to-end flows | |
 | Dates | ISO strings `YYYY-MM-DD`, small `dates.js` helper, `Intl.DateTimeFormat('nl-NL')` | No date library needed |
 
-Dependencies in total (runtime): express, better-sqlite3, multer, vue, vue-router. Dev: vite, @vitejs/plugin-vue, sass.
+Dependencies in total (runtime): express, better-sqlite3, multer, vue, vue-router. Dev: vite, @vitejs/plugin-vue, sass. Dates and Dutch formatting live once in `shared/` (npm workspace) and are used by server and client.
 
 ### 5.3 Authentication
 
@@ -330,12 +330,13 @@ Decided (18 November 2026):
 2. **Frontend: Vue 3 + Vite.**
 3. **Home page: own landing page on `/`**, booking flow on `/reserveren`.
 4. **AI service location: not decided yet.** This repo gets the contract (`docs/ai-contract.md`), `aiClient.js` and a mock; the location is agreed later with Mohammed.
+5. **Node and Vite:** Node 22.12 or newer and Vite 8 (instead of staying on Node 22.11 with Vite 6).
 
 Still open:
 
-5. **Which AI features** Mohammed is building (the table in §6 is a proposal).
-6. **"Anita's dashboard":** in round 1 the dashboard is the `/admin` daily overview from `frontend-ontwerp`; in round 2 it becomes the portal dashboard. Confirm that the portal dashboard is the design Anita chose.
-7. **Hosting:** still undecided (BUILD.md assumption 1). SQLite works well on a single small server or VPS; serverless hosting would need a different database.
+6. **Which AI features** Mohammed is building (the table in §6 is a proposal).
+7. **"Anita's dashboard":** in round 1 the dashboard is the `/admin` daily overview from `frontend-ontwerp`; in round 2 it becomes the portal dashboard. Confirm that the portal dashboard is the design Anita chose.
+8. **Hosting:** still undecided (BUILD.md assumption 1). SQLite works well on a single small server or VPS; serverless hosting would need a different database.
 
 ---
 

@@ -49,6 +49,8 @@ export function loadConfig(env = process.env) {
     mailFolder: path.resolve(serverRoot, env.MAIL_FOLDER || 'data/mail'),
     // Simulated payment: how long "Betalen…" takes, so the loading state is visible.
     paymentDelayMs: readNonNegativeInteger('PAYMENT_DELAY_MS', env.PAYMENT_DELAY_MS, 1500),
+    // The built Vue frontend (npm run build). Served by Express when it exists.
+    clientFolder: path.resolve(serverRoot, env.CLIENT_FOLDER || '../client/dist'),
     // Uploaded spot photos (served publicly at /uploads/spots/<file>).
     spotPhotosFolder: path.join(path.resolve(serverRoot, env.UPLOADS_FOLDER || 'data/uploads'), 'spots'),
     // Other websites (origins) that may send requests that change something, e.g. a separately hosted frontend.

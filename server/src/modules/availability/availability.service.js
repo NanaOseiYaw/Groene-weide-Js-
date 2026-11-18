@@ -1,7 +1,7 @@
 // Availability for the colourful calendar (Feature 3). Port of Services/AvailabilityService.cs.
 // Per month the reservations are read in one query and counted per day in JavaScript.
-import { addDays, daysBetween, eachNight, firstOfNextMonth, makeDate } from '../../lib/dates.js';
-import { formatDayMonth } from '../../lib/format.js';
+import { addDays, daysBetween, eachNight, firstOfNextMonth, makeDate } from '@groene-weide/shared/dates';
+import { formatDayMonth } from '@groene-weide/shared/format';
 import { dealFor, discountedCents, getDeals } from '../pricing/price-rules.js';
 import { BOOKABLE, BOOKABLE_FOR_STAFF } from '../spots/spot-queries.js';
 

@@ -144,7 +144,7 @@
 
 // ---------- Print: without menu, buttons and calendar ----------
 @media print {
-  .skip-link, .admin-nav, .admin-header__user, .no-print, .day-picker .btn-row, #blazor-error-ui { display: none !important; }
+  .skip-link, .admin-nav, .admin-header__user, .no-print, .day-picker .btn-row { display: none !important; }
   .admin-header { background: none; color: v.$admin-text; }
   .admin-header__brand { color: v.$admin-text; }
   .admin { font-size: 1em; }

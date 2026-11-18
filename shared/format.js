@@ -1,5 +1,6 @@
-// Dutch formatting of amounts, dates and names, so they look the same everywhere
-// (port of Services/Format.cs). Only for text people read: the API itself sends
+// Dutch formatting of amounts, dates and names, so they look the same everywhere,
+// on the server (e-mails) and in the Vue client (screens). Package @groene-weide/shared.
+// Port of Services/Format.cs. Only for text people read: the API itself sends
 // raw values (cents, 'YYYY-MM-DD') and the frontend formats them the same way.
 import { toUtcDate } from './dates.js';
 

@@ -2,7 +2,7 @@
 // with a discount on deal days ("blue days"). Port of Services/PriceRules.cs.
 // Kept in one place, so the calendar, the spot pop-up, the summary and the invoice
 // always show the same amount. All amounts are whole cents.
-import { eachNight } from '../../lib/dates.js';
+import { eachNight } from '@groene-weide/shared/dates';
 
 /** Price after a percentage discount, rounded to whole cents. 2500 with 15 % → 2125. */
 export function discountedCents(cents, percentage) {

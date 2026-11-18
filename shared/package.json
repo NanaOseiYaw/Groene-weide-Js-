@@ -1,0 +1,11 @@
+{
+  "name": "@groene-weide/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Code used by both the server and the Vue client: dates and Dutch formatting.",
+  "type": "module",
+  "exports": {
+    "./dates": "./dates.js",
+    "./format": "./format.js"
+  }
+}

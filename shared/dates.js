@@ -1,3 +1,4 @@
+// Shared by the server and the Vue client (package @groene-weide/shared), so dates work the same everywhere.
 // Calendar dates without times, the JavaScript replacement for C#'s DateOnly.
 //
 // A date is always a string 'YYYY-MM-DD' (e.g. '2027-07-14'). Why strings:

@@ -1,8 +1,8 @@
 // Spots for guests (Feature 4). Port of Services/SpotService.cs.
 // Always uses the central rules from spot-queries.js, so spots that are taken out of use,
 // held as reserve tents or occupied are never shown to guests.
-import { daysBetween } from '../../lib/dates.js';
-import { SPOT_TYPE_LABELS } from '../../lib/format.js';
+import { daysBetween } from '@groene-weide/shared/dates';
+import { SPOT_TYPE_LABELS } from '@groene-weide/shared/format';
 import { SPOT_TYPES } from '../../lib/validate.js';
 import { priceStay } from '../pricing/price-rules.js';
 import { BOOKABLE, FREE_BETWEEN, REAL_PHOTO, photoUrl } from './spot-queries.js';

@@ -7,8 +7,8 @@
 // else, and between processes SQLite's write lock does the same job.
 import crypto from 'node:crypto';
 import { HttpError } from '../../lib/errors.js';
-import { daysBetween, isIsoDate } from '../../lib/dates.js';
-import { euro, formatDate, formatLongDate, formatNights, reservationNumber, SPOT_TYPE_LABELS } from '../../lib/format.js';
+import { daysBetween, isIsoDate } from '@groene-weide/shared/dates';
+import { euro, formatDate, formatLongDate, formatNights, reservationNumber, SPOT_TYPE_LABELS } from '@groene-weide/shared/format';
 import { SPOT_TYPES, text } from '../../lib/validate.js';
 import { checkPeriodDates } from '../availability/availability.service.js';
 import { priceStay } from '../pricing/price-rules.js';

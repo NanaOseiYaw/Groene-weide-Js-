@@ -15,6 +15,7 @@
     "create-staff": "node scripts/create-staff.js"
   },
   "dependencies": {
+    "@groene-weide/shared": "0.1.0",
     "better-sqlite3": "^12.11.1",
     "express": "^5.3.0",
     "multer": "^2.5.0"

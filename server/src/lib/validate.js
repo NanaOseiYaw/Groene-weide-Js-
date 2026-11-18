@@ -2,7 +2,7 @@
 // Dutch message, so a route can simply call them and let the error handler answer.
 // For form fields shown to the user, services collect messages per field instead (422).
 import { HttpError } from './errors.js';
-import { isIsoDate } from './dates.js';
+import { isIsoDate } from '@groene-weide/shared/dates';
 
 export const SPOT_TYPES = Object.freeze(['TentCaravan', 'Camper', 'Safari']);
 

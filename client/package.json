@@ -1,0 +1,22 @@
+{
+  "name": "@groene-weide/client",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Vue frontend for Camping De Groene Weide: guest booking site and staff section.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@groene-weide/shared": "0.1.0",
+    "vue": "^3.5.45",
+    "vue-router": "^4.6.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.11",
+    "sass": "^1.108.2",
+    "vite": "^8.3.8"
+  }
+}

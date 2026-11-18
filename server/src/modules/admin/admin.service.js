@@ -2,8 +2,8 @@
 // "needs to be moved" and phone bookings. Port of AdminService.cs and parts of ReservationService.cs.
 // Only used behind requireStaff: guests must never see this data.
 import { HttpError } from '../../lib/errors.js';
-import { daysBetween, isIsoDate } from '../../lib/dates.js';
-import { reservationNumber } from '../../lib/format.js';
+import { daysBetween, isIsoDate } from '@groene-weide/shared/dates';
+import { reservationNumber } from '@groene-weide/shared/format';
 import { SPOT_TYPES, text } from '../../lib/validate.js';
 import { checkPeriodDates } from '../availability/availability.service.js';
 import { insertReservationIfFree } from '../reservations/reservations.service.js';
