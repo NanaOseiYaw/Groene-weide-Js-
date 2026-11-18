@@ -45,6 +45,7 @@ export async function startTestServer({
   payment = createFakePaymentService({ delayMs: 0 }),
   email = createMemoryEmailSender(),
   config = createTestConfig(),
+  ai,
 } = {}) {
   // "now" can be moved forward by tests (e.g. to the end of a lockout): server.clock.advanceMinutes(10).
   let now = new Date(`${today}T10:00:00Z`);
@@ -53,7 +54,7 @@ export async function startTestServer({
     now: () => now,
     advanceMinutes: (minutes) => { now = new Date(now.getTime() + minutes * 60_000); },
   };
-  const app = createApp({ db, config, logger, clock, payment, email });
+  const app = createApp({ db, config, logger, clock, payment, email, ai });
   const server = await new Promise((resolve) => {
     const listening = app.listen(0, () => resolve(listening));
   });

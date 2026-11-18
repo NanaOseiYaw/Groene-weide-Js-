@@ -1,17 +1,19 @@
 // Builds the Express application: middleware, routes and error handling.
 // It does not start listening; server.js does that.
 //
-// Everything the routes depend on (database, clock, payment, e-mail) is passed in here.
+// Everything the routes depend on (database, clock, payment, e-mail, AI service) is passed in here.
 // The real app uses the defaults; tests pass their own (an in-memory database, a fixed
 // "today", a payment that fails on purpose, an e-mail sender that keeps mails in memory).
 import express from 'express';
 import { todayIn } from '@groene-weide/shared/dates';
+import { createAiClient } from './ai/ai-client.js';
 import { serveClientApp } from './lib/client-app.js';
 import { createLogEmailSender } from './lib/email.js';
 import { errorHandler, notFound } from './lib/errors.js';
 import { createFakePaymentService } from './lib/payment.js';
 import { securityHeaders } from './lib/security-headers.js';
 import { createAdminRouter } from './modules/admin/admin.routes.js';
+import { createAiRouter } from './modules/ai/ai.routes.js';
 import { checkOrigin, loadSession, requireStaff } from './modules/auth/auth.middleware.js';
 import { createAuthRouter } from './modules/auth/auth.routes.js';
 import { createAvailabilityRouter } from './modules/availability/availability.routes.js';
@@ -28,6 +30,7 @@ import { createSpotsRouter } from './modules/spots/spots.routes.js';
  * @param {{ today: () => string, now: () => Date }} [options.clock]  what "today" ('YYYY-MM-DD') and "now" are
  * @param {{ pay: Function }} [options.payment]
  * @param {{ send: Function }} [options.email]
+ * @param {ReturnType<typeof createAiClient>} [options.ai]  the Python AI service (docs/ai-contract.md)
  */
 export function createApp({
   db,
@@ -36,8 +39,9 @@ export function createApp({
   clock = { today: () => todayIn(config.timeZone), now: () => new Date() },
   payment = createFakePaymentService({ delayMs: config.paymentDelayMs }),
   email = createLogEmailSender({ folder: config.mailFolder, logger }),
+  ai = createAiClient(config.ai, { logger }),
 }) {
-  const deps = { db, config, logger, clock, payment, email };
+  const deps = { db, config, logger, clock, payment, email, ai };
 
   const app = express();
   app.disable('x-powered-by'); // do not advertise which framework we use
@@ -73,7 +77,7 @@ export function createApp({
 
   // Sign-in, and everything behind it. requireStaff runs before any staff route.
   api.use(createAuthRouter(deps));
-  api.use('/admin', requireStaff, createAdminRouter(deps), createPhotosRouter(deps));
+  api.use('/admin', requireStaff, createAdminRouter(deps), createPhotosRouter(deps), createAiRouter(deps));
 
   app.use('/api', api);
 

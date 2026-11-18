@@ -30,7 +30,7 @@ Every error has the same shape. `code` is stable English for the frontend to che
 | 413 | `too_large` | Request body larger than 100 kB |
 | 422 | `missing_choice`, `validation_failed`, `invalid_period` | The user has to change something |
 | 500 | `server_error` | Unexpected; details are only in the server log |
-| 503 | `busy` | The database was busy for too long; trying again usually works |
+| 503 | `busy`, `ai_unavailable` | The database was busy for too long (trying again usually works), or the AI service is off, slow or gave a wrong answer (the rest of the site works as always) |
 
 ## Public endpoints (no sign-in)
 
@@ -180,6 +180,8 @@ Every route needs a signed-in staff member (role `Staff` or `Admin`): otherwise 
 | `PATCH /api/admin/photos/:id` | `{ altText }` | `204` |
 | `POST /api/admin/photos/:id/move` | `{ direction: -1 }` (earlier) or `1` (later) | `204` |
 | `DELETE /api/admin/photos/:id` | Removes the photo and its file | `204` |
+| `GET /api/admin/ai/status` | Is the AI service configured and does it answer? | `{ configured, available }` |
+| `GET /api/admin/ai/occupancy-forecast?from&to` | Expected occupancy per day and spot type from the AI service (at most 93 days). Only anonymous numbers of the 365 days before `from` are sent (docs/ai-contract.md) | `{ from, to, forecast: [{ date, spotType, expectedOccupancy, confidence }] }`, `503 ai_unavailable` |
 
 A `row` in the staff lists: `{ id, number, spotId, spotName, spotType, guestName, start, end, nights, status, phone, email, isFriendOfBert, paymentStatus, needsMove, createdBy, notes, totalPriceCents, createdAt }`.
 

@@ -1,0 +1,191 @@
+# AI service contract, draft v1 — the machine-readable twin of docs/ai-contract.md.
+# Keep both in step (and server/src/ai/ai-contract.js, which checks every answer in Node).
+openapi: 3.1.0
+info:
+  title: Groene Weide AI service
+  version: 1.0.0-draft
+  description: >
+    Called only by the Groene Weide Node server (server/src/ai/ai-client.js), never by browsers.
+    Every /v1 endpoint is free of side effects. Only aggregated, anonymous data is sent.
+servers:
+  - url: http://localhost:8000
+    description: Local development (npm run ai:mock, or the Python service)
+security:
+  - serviceKey: []
+paths:
+  /health:
+    get:
+      summary: Is the service up?
+      security: []
+      responses:
+        '200':
+          description: Up
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status: { type: string, const: ok }
+                  version: { type: string }
+  /v1/occupancy-forecast:
+    post:
+      summary: Expected occupancy per day and spot type
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ForecastRequest' }
+      responses:
+        '200':
+          description: Forecast
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [forecast]
+                properties:
+                  forecast:
+                    type: array
+                    maxItems: 279 # 93 days x 3 types
+                    items: { $ref: '#/components/schemas/ForecastDay' }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+  /v1/purchase-advice:
+    post:
+      summary: What to buy for a period, based on a forecast
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [from, to, forecast]
+              properties:
+                from: { $ref: '#/components/schemas/Date' }
+                to: { $ref: '#/components/schemas/Date' }
+                forecast:
+                  type: array
+                  maxItems: 279
+                  items: { $ref: '#/components/schemas/ForecastDay' }
+      responses:
+        '200':
+          description: Advice, texts in Dutch
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [advice]
+                properties:
+                  advice:
+                    type: array
+                    maxItems: 50
+                    items:
+                      type: object
+                      required: [item, quantity, unit, reason]
+                      properties:
+                        item: { type: string, minLength: 1, maxLength: 100 }
+                        quantity: { type: number, minimum: 0 }
+                        unit: { type: string, minLength: 1, maxLength: 30 }
+                        reason: { type: string, minLength: 1, maxLength: 300 }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+  /v1/assistant/answer:
+    post:
+      summary: Answer a visitor's question about the campsite
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [question, language, campsite]
+              properties:
+                question: { type: string, minLength: 1, maxLength: 500 }
+                language: { type: string, enum: [nl] }
+                campsite:
+                  type: object
+                  required: [name, season]
+                  properties:
+                    name: { type: string }
+                    season:
+                      type: object
+                      required: [start, end]
+                      properties:
+                        start: { type: string, pattern: '^\d{2}-\d{2}$', examples: ['04-01'] }
+                        end: { type: string, pattern: '^\d{2}-\d{2}$', examples: ['10-31'] }
+      responses:
+        '200':
+          description: Answer
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [answer, sources]
+                properties:
+                  answer: { type: string, minLength: 1, maxLength: 2000 }
+                  sources:
+                    type: array
+                    maxItems: 10
+                    items: { type: string, maxLength: 200 }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+components:
+  securitySchemes:
+    serviceKey:
+      type: apiKey
+      in: header
+      name: X-Service-Key
+  schemas:
+    Date:
+      type: string
+      format: date
+      pattern: '^\d{4}-\d{2}-\d{2}$'
+    SpotType:
+      type: string
+      enum: [TentCaravan, Camper, Safari]
+    ForecastRequest:
+      type: object
+      required: [from, to, history]
+      properties:
+        from: { $ref: '#/components/schemas/Date' }
+        to:
+          $ref: '#/components/schemas/Date'
+          description: At most 92 days after from
+        history:
+          type: array
+          maxItems: 1095 # 365 days x 3 types
+          items:
+            type: object
+            required: [date, spotType, occupied, total]
+            properties:
+              date: { $ref: '#/components/schemas/Date' }
+              spotType: { $ref: '#/components/schemas/SpotType' }
+              occupied: { type: integer, minimum: 0 }
+              total: { type: integer, minimum: 0 }
+    ForecastDay:
+      type: object
+      required: [date, spotType, expectedOccupancy, confidence]
+      properties:
+        date: { $ref: '#/components/schemas/Date' }
+        spotType: { $ref: '#/components/schemas/SpotType' }
+        expectedOccupancy: { type: number, minimum: 0, maximum: 1 }
+        confidence: { type: number, minimum: 0, maximum: 1 }
+  responses:
+    Error:
+      description: The request was not right (Node logs only the code)
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [error]
+            properties:
+              error:
+                type: object
+                required: [code, message]
+                properties:
+                  code: { type: string }
+                  message: { type: string }

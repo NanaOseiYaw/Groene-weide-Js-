@@ -38,4 +38,30 @@ describe('loadConfig', () => {
   it('returns a frozen object, so no code can change a setting by accident', () => {
     assert.ok(Object.isFrozen(loadConfig({})));
   });
+
+  describe('AI service', () => {
+    it('is switched off by default, with a 5 second time limit', () => {
+      assert.deepEqual({ ...loadConfig({}).ai }, { url: null, key: '', timeoutMs: 5000 });
+      assert.equal(loadConfig({ AI_SERVICE_URL: '  ' }).ai.url, null);
+    });
+
+    it('reads the address without a trailing slash', () => {
+      assert.equal(loadConfig({ AI_SERVICE_URL: 'http://localhost:8000/' }).ai.url, 'http://localhost:8000');
+    });
+
+    it('rejects a wrong address or time limit', () => {
+      assert.throws(() => loadConfig({ AI_SERVICE_URL: 'localhost:8000' }), /AI_SERVICE_URL must/);
+      assert.throws(() => loadConfig({ AI_SERVICE_URL: 'ftp://ai.example' }), /must start with http/);
+      assert.throws(() => loadConfig({ AI_TIMEOUT_MS: '50' }), /AI_TIMEOUT_MS must be between 100 and 60000/);
+      assert.throws(() => loadConfig({ AI_TIMEOUT_MS: 'snel' }), /AI_TIMEOUT_MS must be a whole number/);
+    });
+
+    it('needs a real key in production when an address is set', () => {
+      const production = { NODE_ENV: 'production', AI_SERVICE_URL: 'https://ai.example' };
+      assert.throws(() => loadConfig(production), /AI_SERVICE_KEY must be set/);
+      assert.throws(() => loadConfig({ ...production, AI_SERVICE_KEY: 'kort' }), /AI_SERVICE_KEY must be set/);
+      assert.equal(loadConfig({ ...production, AI_SERVICE_KEY: 'a'.repeat(16) }).ai.url, 'https://ai.example');
+      assert.equal(loadConfig({ NODE_ENV: 'production' }).ai.url, null); // AI off: no key needed
+    });
+  });
 });

@@ -12,7 +12,8 @@
     "db:migrate": "node scripts/migrate.js",
     "db:seed": "node scripts/seed.js",
     "db:reset": "node scripts/reset-db.js",
-    "create-staff": "node scripts/create-staff.js"
+    "create-staff": "node scripts/create-staff.js",
+    "ai:mock": "node scripts/ai-mock.js"
   },
   "dependencies": {
     "@groene-weide/shared": "0.1.0",

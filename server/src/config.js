@@ -69,7 +69,36 @@ export function loadConfig(env = process.env) {
       phone: env.CAMPSITE_PHONE || '',
       email: env.CAMPSITE_EMAIL || '',
     }),
+    ai: readAiSettings(env, nodeEnv),
   });
+}
+
+/**
+ * The Python AI service (docs/ai-contract.md). No URL = AI switched off; the rest of the site
+ * works the same either way. In production a URL needs a real key, so the service is never open to anyone.
+ */
+function readAiSettings(env, nodeEnv) {
+  const url = (env.AI_SERVICE_URL ?? '').trim().replace(/\/+$/, '');
+  if (url) {
+    let parsed;
+    try {
+      parsed = new URL(url);
+    } catch {
+      throw new ConfigError(`AI_SERVICE_URL must be a web address such as http://localhost:8000 (got "${url}").`);
+    }
+    if (!['http:', 'https:'].includes(parsed.protocol)) {
+      throw new ConfigError(`AI_SERVICE_URL must start with http:// or https:// (got "${url}").`);
+    }
+  }
+  const key = env.AI_SERVICE_KEY ?? '';
+  if (url && nodeEnv === 'production' && key.length < 16) {
+    throw new ConfigError('AI_SERVICE_KEY must be set (at least 16 characters) when AI_SERVICE_URL is set in production.');
+  }
+  const timeoutMs = readNonNegativeInteger('AI_TIMEOUT_MS', env.AI_TIMEOUT_MS, 5000);
+  if (timeoutMs < 100 || timeoutMs > 60_000) {
+    throw new ConfigError(`AI_TIMEOUT_MS must be between 100 and 60000 milliseconds (got "${env.AI_TIMEOUT_MS}").`);
+  }
+  return Object.freeze({ url: url || null, key, timeoutMs });
 }
 
 function readPort(value, fallback) {

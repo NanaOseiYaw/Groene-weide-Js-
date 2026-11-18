@@ -9,7 +9,7 @@ This is the JavaScript version of the original C# (Blazor) project. The migratio
 | Backend (`server/`) | Node.js, Express 5, SQLite (`better-sqlite3`) | Phases 1–3 done: database, public booking API, staff sign-in and staff API (daily overview, reservations, phone booking, spots out of use, photos) |
 | Frontend (`client/`) | Vue 3, Vue Router 4, Vite 8, the original Sass styling | Phases 4–6 done: site frame, shared components, sign-in page, the complete guest booking flow on `/reserveren`, and the five staff pages (daily overview, reservations, spots, phone booking, photos). New home page: phase 8 (the current one is the C# step 1) |
 | Shared (`shared/`) | Plain JavaScript | Dates and Dutch formatting, used by both server and client |
-| AI (separate) | Python, by Mohammed, behind an HTTP contract | Not started (phase 7) |
+| AI (separate) | Python, by Mohammed, behind an HTTP contract | Phase 7 done on the Node side: draft contract [docs/ai-contract.md](docs/ai-contract.md) (to agree with Mohammed), `server/src/ai/ai-client.js`, a fake AI service (`npm run ai:mock`), one staff route (occupancy forecast). The Python service itself: not started |
 
 Code, file names and comments are in English. Everything a guest or staff member reads is Dutch.
 
@@ -84,6 +84,7 @@ Run these from the repository root.
 | `npm run db:seed` | Add the dummy data to an empty database |
 | `npm run db:reset` | Delete the local database and start again with fresh dummy data (stop the server first; refused in production) |
 | `npm run create-staff -- "Naam" "mail" Staff` | Create a staff account (see above) |
+| `npm run ai:mock` | Start a fake AI service on port 8000 (add `-- --mode=slow`, `error`, `unavailable` or `bad` to try failures). See [docs/ai-contract.md](docs/ai-contract.md) |
 
 ## Folders
 
@@ -112,8 +113,10 @@ server/
     config.js              reads and checks the environment variables
     db/                    connection, migration runner, migrations/*.sql, seed
     lib/                   small helpers: validation, errors, e-mail, payment, passwords, security headers
+    ai/                    the only code that talks to the Python AI service: ai-client.js, the contract checks, the fake service
     modules/               one folder per feature: *.service.js (rules + SQL) and *.routes.js (HTTP)
       admin/               staff: daily overview, reservation list, phone booking, spots out of use
+      ai/                  staff: AI status and occupancy forecast (anonymous numbers only)
       auth/                staff accounts, sign-in, sessions, the requireStaff check
       availability/        colourful calendar and the period check
       photos/              photo upload and management per spot
@@ -121,7 +124,7 @@ server/
       reservations/        guest booking, payment, confirmation e-mail
       settings/            season and thresholds; GET /api/campsite
       spots/               spot types, spot list, spot details; the central "bookable" rules
-  scripts/                 the db:* and create-staff commands
+  scripts/                 the db:*, create-staff and ai:mock commands
   test/                    tests (*.test.js)
   data/                    database file, mail log, uploads (created at runtime, not in git)
 scripts/dev.js             starts API and site together

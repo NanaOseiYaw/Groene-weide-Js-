@@ -6,6 +6,8 @@
 // - message: short Dutch sentence that can be shown to the user as is
 // - fields:  only for validation errors: Dutch message per form field
 
+import { AiUnavailableError } from '../ai/ai-unavailable-error.js';
+
 /** An error we expect and can explain to the user, e.g. "not found" or "invalid input". */
 export class HttpError extends Error {
   constructor(status, code, message, fields) {
@@ -44,6 +46,10 @@ export function errorHandler({ logger = console } = {}) {
 /** Errors from Express itself (e.g. invalid JSON) also get a clear Dutch message. */
 function toHttpError(error) {
   if (error instanceof HttpError) return error;
+  // The AI service is down, slow or answered nonsense: ai-client.js already logged why.
+  if (error instanceof AiUnavailableError) {
+    return new HttpError(503, 'ai_unavailable', 'Deze slimme functie is nu even niet beschikbaar. De rest van de website werkt gewoon.');
+  }
   if (error?.type === 'entity.parse.failed') {
     return new HttpError(400, 'invalid_json', 'De gegevens konden niet worden gelezen.');
   }
