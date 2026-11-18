@@ -10,7 +10,7 @@
   (reserve tents count) and the staff daily overview (numbers per day).
 -->
 <script setup>
-import { computed, nextTick, onMounted, ref, useId } from 'vue';
+import { computed, nextTick, onMounted, ref, useId, watch } from 'vue';
 import { addDays, addMonths, daysBetween, firstOfMonth, parts, todayIn, weekdayFromMonday } from '@groene-weide/shared/dates';
 import { euro, formatDate, formatLongDate, formatNights, formatShortDate } from '@groene-weide/shared/format';
 import { loadCampsite } from '../../composables/useCampsite.js';
@@ -47,6 +47,8 @@ const focusDate = ref(null); // the day with tabindex=0 (roving tabindex)
 const start = ref(props.start);
 const end = ref(props.end);
 const selected = ref(props.selectedDay);
+// Staff view: the page can change the day too (previous/next day), so follow it.
+watch(() => props.selectedDay, (day) => { selected.value = day; });
 const message = ref(null);
 const messageIsError = ref(false);
 const alternatives = ref([]);

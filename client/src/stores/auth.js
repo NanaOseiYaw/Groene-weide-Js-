@@ -37,5 +37,11 @@ export function useAuth() {
         checking = Promise.resolve();
       }
     },
+
+    /** The server no longer knows this session (401 on a staff call): forget it here too, without asking the server. */
+    forget() {
+      staff.value = null;
+      checking = Promise.resolve();
+    },
   };
 }

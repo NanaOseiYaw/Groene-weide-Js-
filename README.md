@@ -7,7 +7,7 @@ This is the JavaScript version of the original C# (Blazor) project. The migratio
 | Part | Technology | Status |
 | :-- | :-- | :-- |
 | Backend (`server/`) | Node.js, Express 5, SQLite (`better-sqlite3`) | Phases 1–3 done: database, public booking API, staff sign-in and staff API (daily overview, reservations, phone booking, spots out of use, photos) |
-| Frontend (`client/`) | Vue 3, Vue Router 4, Vite 8, the original Sass styling | Phases 4–5 done: site frame, shared components, sign-in page, the complete guest booking flow on `/reserveren`. Staff pages: phase 6. New home page: phase 8 (the current one is the C# step 1) |
+| Frontend (`client/`) | Vue 3, Vue Router 4, Vite 8, the original Sass styling | Phases 4–6 done: site frame, shared components, sign-in page, the complete guest booking flow on `/reserveren`, and the five staff pages (daily overview, reservations, spots, phone booking, photos). New home page: phase 8 (the current one is the C# step 1) |
 | Shared (`shared/`) | Plain JavaScript | Dates and Dutch formatting, used by both server and client |
 | AI (separate) | Python, by Mohammed, behind an HTTP contract | Not started (phase 7) |
 
@@ -99,8 +99,9 @@ client/                    the Vue frontend
     stores/                shared state, e.g. auth.js (who is signed in)
     composables/           shared logic for components, e.g. useCampsite.js (name, phone, season)
     layouts/               SiteLayout.vue (guests) and AdminLayout.vue (staff)
-    pages/                 one component per page (BookingPage.vue = the booking steps)
+    pages/                 one component per page (BookingPage.vue = the booking steps, admin/ = the staff pages)
     components/booking/    the booking steps, the colourful calendar, spot list and spot pop-up
+    components/admin/      parts of the staff pages: spot tile, "moet verplaatst worden" list, photo upload
     components/ui/         small shared building blocks: AppIcon, AlertBox, LoadingState, EmptyState, FieldSign, ModalDialog, …
     styles/                the Sass from the C# project (tokens, mixins, one file per component)
 shared/                    dates, Dutch formatting and the guest-detail rules, used by server and client

@@ -3,6 +3,7 @@
 // Until the answer arrives (or when the API cannot be reached) safe defaults are shown,
 // so the page frame never breaks.
 import { readonly, ref } from 'vue';
+import { todayIn } from '@groene-weide/shared/dates';
 import { formatDayMonth } from '@groene-weide/shared/format';
 import { getCampsite } from '../api/campsite.js';
 
@@ -31,6 +32,12 @@ export function loadCampsite() {
     .then((data) => { campsite.value = data; })
     .catch(() => { loading = null; }); // try again next time
   return loading.then(() => readonly(campsite).value);
+}
+
+/** "Today" for the campsite as 'YYYY-MM-DD': the server decides; the browser's own date only when the API cannot be reached. */
+export async function loadToday() {
+  const { today } = await loadCampsite();
+  return today ?? todayIn('Europe/Amsterdam');
 }
 
 /** "Open van 1 april tot en met 31 oktober", from the season in the settings. */

@@ -14,8 +14,29 @@ const routes = [
   { path: '/account/login', component: () => import('./pages/account/LoginPage.vue'), meta: { layout: 'admin', title: 'Inloggen – De Groene Weide' } },
   {
     path: '/admin',
+    alias: '/admin/daily-overview',
     component: () => import('./pages/admin/DashboardPage.vue'),
     meta: { layout: 'admin', requiresStaff: true, title: 'Dagoverzicht – De Groene Weide' },
+  },
+  {
+    path: '/admin/reservations',
+    component: () => import('./pages/admin/ReservationsPage.vue'),
+    meta: { layout: 'admin', requiresStaff: true, title: 'Reserveringen – De Groene Weide' },
+  },
+  {
+    path: '/admin/spots',
+    component: () => import('./pages/admin/SpotsPage.vue'),
+    meta: { layout: 'admin', requiresStaff: true, title: 'Plekken – De Groene Weide' },
+  },
+  {
+    path: '/admin/new-reservation',
+    component: () => import('./pages/admin/NewReservationPage.vue'),
+    meta: { layout: 'admin', requiresStaff: true, title: 'Nieuwe reservering – De Groene Weide' },
+  },
+  {
+    path: '/admin/photos',
+    component: () => import('./pages/admin/PhotosPage.vue'),
+    meta: { layout: 'admin', requiresStaff: true, title: "Foto's – De Groene Weide" },
   },
   { path: '/:pathMatch(.*)*', component: () => import('./pages/NotFoundPage.vue'), meta: { title: 'Pagina niet gevonden – Camping De Groene Weide' } },
 ];
