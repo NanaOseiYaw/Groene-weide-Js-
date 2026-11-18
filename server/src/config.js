@@ -45,6 +45,10 @@ export function loadConfig(env = process.env) {
     // Dummy data is only ever added in development, never in production.
     seedOnStart: nodeEnv === 'development' && readBoolean('SEED_ON_START', env.SEED_ON_START, true),
     timeZone: readTimeZone(env.TIME_ZONE || 'Europe/Amsterdam'),
+    // Development e-mail: mails are written to <mailFolder>/mail.log instead of being sent.
+    mailFolder: path.resolve(serverRoot, env.MAIL_FOLDER || 'data/mail'),
+    // Simulated payment: how long "Betalen…" takes, so the loading state is visible.
+    paymentDelayMs: readNonNegativeInteger('PAYMENT_DELAY_MS', env.PAYMENT_DELAY_MS, 1500),
     campsite: Object.freeze({
       name: env.CAMPSITE_NAME || 'Camping De Groene Weide',
       phone: env.CAMPSITE_PHONE || '',
@@ -60,6 +64,15 @@ function readPort(value, fallback) {
     throw new ConfigError(`PORT must be a whole number between 0 and 65535 (got "${value}").`);
   }
   return port;
+}
+
+function readNonNegativeInteger(name, value, fallback) {
+  if (value === undefined || value === '') return fallback;
+  const number = Number(value);
+  if (!Number.isInteger(number) || number < 0) {
+    throw new ConfigError(`${name} must be a whole number of 0 or more (got "${value}").`);
+  }
+  return number;
 }
 
 function readDatabasePath(value) {

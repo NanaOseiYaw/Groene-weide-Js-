@@ -6,7 +6,7 @@ This is the JavaScript version of the original C# (Blazor) project. The migratio
 
 | Part | Technology | Status |
 | :-- | :-- | :-- |
-| Backend (`server/`) | Node.js 22, Express 5, SQLite (`better-sqlite3`) | Phase 1 done: app, config, database, seed |
+| Backend (`server/`) | Node.js 22, Express 5, SQLite (`better-sqlite3`) | Phases 1–2 done: database, seed, public booking API (calendar, spots, booking, payment, e-mail). Staff API and sign-in: phase 3 |
 | Frontend (`client/`) | Vue 3 + Vite, existing Sass styling | Not started (phase 4) |
 | AI (separate) | Python, by Mohammed, behind an HTTP contract | Not started (phase 7) |
 
@@ -66,7 +66,13 @@ server/
       migrate.js     runs new files from migrations/ once, in order
       migrations/    the database structure, one numbered .sql file per change
       seed.js        dummy data for development
-    lib/             small shared helpers (errors, security headers)
+    lib/             small shared helpers: dates, Dutch formatting, validation, errors, e-mail, payment
+    modules/         one folder per feature: *.service.js (rules + SQL) and *.routes.js (HTTP)
+      availability/  colourful calendar and the period check
+      pricing/       price per night with deal days
+      reservations/  guest booking, payment, confirmation e-mail
+      settings/      season and thresholds; GET /api/campsite
+      spots/         spot types, spot list, spot details; the central "bookable" rules
   scripts/           the db:* commands
   test/              tests (*.test.js)
   data/              database file, mail log, uploads (created at runtime, not in git)
@@ -79,10 +85,21 @@ docs/                migration plan and other documentation
 - Money is stored in **cents** (`2500` = € 25,00), dates as `YYYY-MM-DD` text. The comments at the top of `001_initial.sql` explain all conventions.
 - Bookable spot = available, not a reserve tent, and no confirmed reservation in the period. A reservation occupies the nights from arrival up to the day before departure; the departure day is free again.
 
-## API errors
+## API
+
+All endpoints, request and response examples and error codes: [docs/api.md](docs/api.md).
 
 Every error response has the same shape, with a Dutch message that can be shown to the user:
 
 ```json
 { "error": { "code": "not_found", "message": "Deze pagina of gegevens bestaan niet." } }
 ```
+
+## Test e-mail and test payment
+
+- E-mails are not really sent in this version: they are written to `server/data/mail/mail.log`.
+- Paying is simulated: it always succeeds after 1.5 seconds (`PAYMENT_DELAY_MS`). No money changes hands.
+
+## No double bookings
+
+Checking that a spot is free and saving the reservation happen in one database transaction that takes the write lock first (`insertReservationIfFree` in `server/src/modules/reservations/reservations.service.js`). `npm test` proves it in `server/test/double-booking.test.js`: 10 guests booking the same spot at the same moment, through the API and from 10 separate database connections, guests and staff mixed. Exactly 1 succeeds each time.

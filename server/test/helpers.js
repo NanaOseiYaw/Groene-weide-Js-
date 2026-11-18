@@ -4,6 +4,14 @@ import { loadConfig } from '../src/config.js';
 import { openDatabase } from '../src/db/connection.js';
 import { migrate } from '../src/db/migrate.js';
 import { seedDatabase } from '../src/db/seed.js';
+import { createMemoryEmailSender } from '../src/lib/email.js';
+import { createFakePaymentService } from '../src/lib/payment.js';
+
+/**
+ * "Today" in the tests. The seed has reservations in the 2027 season, so tests use a fixed
+ * day before that season: results never depend on the real date the tests run on.
+ */
+export const TEST_TODAY = '2027-01-15';
 
 /** A new, migrated in-memory database. Pass { seed: true } for the dummy data. */
 export function createTestDatabase({ seed = false } = {}) {
@@ -16,23 +24,57 @@ export function createTestDatabase({ seed = false } = {}) {
 /** A quiet logger, so expected errors do not clutter the test output. */
 export function createSilentLogger() {
   const errors = [];
-  return { errors, error: (...args) => errors.push(args), log() {}, warn() {}, info() {} };
+  const warnings = [];
+  return { errors, warnings, error: (...args) => errors.push(args), warn: (...args) => warnings.push(args), log() {}, info() {} };
+}
+
+/** Settings for tests: the in-memory database and no payment delay. */
+export function createTestConfig() {
+  return loadConfig({ NODE_ENV: 'test', DATABASE_PATH: ':memory:', PAYMENT_DELAY_MS: '0' });
 }
 
 /**
- * Starts the app on a free port. Returns the base URL and a close() function.
- * Use with node:test's after()/afterEach() to stop it.
+ * Starts the app on a free port. Returns the base URL, the sent e-mails and a close() function.
+ * Use with node:test's before()/after() to start and stop it.
  */
-export async function startTestServer({ db = createTestDatabase({ seed: true }), logger = createSilentLogger() } = {}) {
-  const config = loadConfig({ NODE_ENV: 'test', DATABASE_PATH: ':memory:' });
-  const app = createApp({ db, config, logger });
+export async function startTestServer({
+  db = createTestDatabase({ seed: true }),
+  logger = createSilentLogger(),
+  today = TEST_TODAY,
+  payment = createFakePaymentService({ delayMs: 0 }),
+  email = createMemoryEmailSender(),
+} = {}) {
+  const app = createApp({ db, config: createTestConfig(), logger, clock: { today: () => today }, payment, email });
   const server = await new Promise((resolve) => {
     const listening = app.listen(0, () => resolve(listening));
   });
+  const baseUrl = `http://127.0.0.1:${server.address().port}`;
   return {
     db,
     logger,
-    baseUrl: `http://127.0.0.1:${server.address().port}`,
+    email,
+    baseUrl,
+    /** fetch() relative to the server, with a JSON body when `body` is given. Returns { status, body }. */
+    async request(path, { method = 'GET', body } = {}) {
+      const response = await fetch(baseUrl + path, {
+        method,
+        headers: body === undefined ? {} : { 'Content-Type': 'application/json' },
+        body: body === undefined ? undefined : JSON.stringify(body),
+      });
+      return { status: response.status, body: await response.json() };
+    },
     close: () => new Promise((resolve) => server.close(() => { db.close(); resolve(); })),
+  };
+}
+
+/** A complete, valid guest booking body. Override what a test needs. */
+export function guestBooking(overrides = {}) {
+  return {
+    spotId: 41, // C01 in the seed (ids follow the insert order: T01–T40 = 1–40, C01–C12 = 41–52, S1–S8 = 53–60)
+    type: 'Camper',
+    start: '2027-05-10',
+    end: '2027-05-13',
+    guest: { name: 'Test Gast', email: 'gast@example.com', phone: '06 12345678' },
+    ...overrides,
   };
 }
