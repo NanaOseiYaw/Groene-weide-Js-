@@ -1,6 +1,6 @@
 # Migration plan: Groene Weide, C# (Blazor) → JavaScript (Node.js)
 
-Status: **proposal, nothing migrated yet** (18 November 2026).
+Status: **approved direction, nothing migrated yet** (18 November 2026). Decisions in §9.
 Reference implementation: `lunahilly/Boer` (read only, never modified).
 Destination: this repository, `Groene-weide-Js-`.
 
@@ -322,14 +322,20 @@ The agreed version goes into `docs/ai-contract.md` (OpenAPI) before either side 
 
 ---
 
-## 9. Open questions (answers needed before Phase 2)
+## 9. Decisions and open questions
 
-1. **Reference branch:** `frontend-ontwerp` (MVP, on GitHub) or `medewerkersportaal` (full staff portal, local only)?
-2. **Frontend framework:** Vue 3 (recommended), React, or plain JavaScript modules without a framework?
-3. **AI:** which AI features is Mohammed building, and does his code live in its own repository or in an `ai-service/` folder here?
-4. **Home page route:** OK to move the booking flow to `/reserveren` so `/` can be a proper landing page?
-5. **"Anita's dashboard":** is that the portal dashboard at `/admin` (portal branch), or the simpler daily overview on `frontend-ontwerp`?
-6. **Hosting:** still undecided (BUILD.md assumption 1). SQLite works well on a single small server or VPS; serverless hosting would need a different database.
+Decided (18 November 2026):
+
+1. **Reference branch: MVP first, portal next.** Round 1 migrates `frontend-ontwerp` completely. Round 2 adds the `medewerkersportaal` features (§4.4). Push `medewerkersportaal` to GitHub so it is safe.
+2. **Frontend: Vue 3 + Vite.**
+3. **Home page: own landing page on `/`**, booking flow on `/reserveren`.
+4. **AI service location: not decided yet.** This repo gets the contract (`docs/ai-contract.md`), `aiClient.js` and a mock; the location is agreed later with Mohammed.
+
+Still open:
+
+5. **Which AI features** Mohammed is building (the table in §6 is a proposal).
+6. **"Anita's dashboard":** in round 1 the dashboard is the `/admin` daily overview from `frontend-ontwerp`; in round 2 it becomes the portal dashboard. Confirm that the portal dashboard is the design Anita chose.
+7. **Hosting:** still undecided (BUILD.md assumption 1). SQLite works well on a single small server or VPS; serverless hosting would need a different database.
 
 ---
 
@@ -351,4 +357,4 @@ Each phase ends with a commit and a "done when" check. The C# repository stays u
 | 10 | Full verification: all features, a11y, responsive, errors | Checklist in `docs/` filled with real results |
 | 11 | Final docs: README, architecture, how to run | A teammate can run it from a clean clone |
 
-If `medewerkersportaal` is chosen, its features slot into phases 2, 3 and 6 and add a billing/PDF/mail sub-phase.
+Round 2 (`medewerkersportaal` features) follows after phase 11 with its own phases: data model extension, portal API, billing/PDF/SMTP, portal pages, live updates.
