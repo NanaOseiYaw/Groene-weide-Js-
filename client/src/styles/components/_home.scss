@@ -1,0 +1,252 @@
+@use "../variables" as v;
+@use "../mixins" as m;
+
+// Home page (HomePage.vue): the campsite's own landing page. Editorial and spacious, full-width
+// bands with a calm rhythm (hay → white → meadow → hay → forest), deliberately unlike the staff
+// section. Text never sits on a photo: the hero text is on a solid forest-green slab.
+// The one signature element is the painted field sign; everything around it stays quiet.
+
+// Content column inside a full-width band.
+.home-wrap {
+  width: 100%; max-width: v.$content-max; margin-inline: auto; padding-inline: v.$space-m;
+  @include m.from-tablet { padding-inline: v.$space-l; }
+}
+
+.home-section-title {
+  font-size: v.$font-size-home-section; margin-bottom: v.$space-s;
+}
+.home-section-lead { color: v.$color-ink-soft; font-size: v.$font-size-large; margin-bottom: 0; }
+
+// ---------- Hero: full-width photo, text on a solid slab that rises out of it ----------
+.home-hero {
+  &__image {
+    width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: 60% 60%;
+    @include m.from-tablet { aspect-ratio: auto; height: clamp(22em, 62vh, 38em); }
+  }
+
+  &__slab {
+    position: relative;
+    margin-top: -2.5em; padding: v.$space-l;
+    background: v.$color-forest; color: v.$color-white;
+    border-radius: v.$radius-lg; box-shadow: v.$shadow-high;
+    animation: home-rise 0.6s v.$easing both;  // one entrance on load; off with reduced motion
+
+    @include m.from-tablet { margin-top: -9em; max-width: 36em; padding: v.$space-xl; }
+    @include m.from-desktop { margin-top: -12em; max-width: 40em; }
+  }
+
+  &__title {
+    font-size: v.$font-size-display; font-weight: v.$font-weight-regular;
+    line-height: 1.08; letter-spacing: -0.01em; margin-bottom: 0.4em;
+  }
+
+  &__lead { font-size: v.$font-size-large; max-width: 30em; }
+
+  &__actions {
+    display: flex; flex-wrap: wrap; align-items: center; gap: v.$space-m v.$space-l;
+    margin: v.$space-l 0;
+  }
+
+  &__phone {
+    @include m.tap-target;
+    @include m.focus-ring-light;
+    display: inline-flex; align-items: center; gap: v.$space-s;
+    color: v.$color-white; font-weight: v.$font-weight-bold;
+    &:hover { color: v.$color-white; }
+  }
+
+  &__season {
+    display: flex; align-items: center; gap: v.$space-s; margin: 0;
+    padding-top: v.$space-m; border-top: v.$border-thin solid v.$color-divider-on-dark;
+  }
+}
+
+// Movement only, no fade: if the animation is paused (background tab, slow device) the text is still readable.
+@keyframes home-rise {
+  from { transform: translateY(1.5em); }
+  to   { transform: none; }
+}
+
+// ---------- Introduction ----------
+.home-intro {
+  display: grid; gap: v.$space-l; padding-block: v.$space-xxl;
+  @include m.from-desktop {
+    grid-template-columns: 7fr 5fr; gap: v.$space-xxl; align-items: end; padding-block: v.$space-section;
+  }
+
+  &__statement {
+    font-family: v.$font-heading; font-size: v.$font-size-statement; line-height: 1.35;
+    max-width: 24em; margin: 0;
+  }
+  &__aside { color: v.$color-ink-soft; margin: 0; }
+}
+
+// ---------- The three fields: large photo rows, alternating sides on wide screens ----------
+.home-fields {
+  background: v.$color-white; padding-block: v.$space-xxl;
+  border-block: v.$border-thin solid v.$color-border-soft;
+  @include m.from-desktop { padding-block: v.$space-section; }
+}
+
+.field-rows {
+  display: grid; gap: v.$space-xxl; padding: 0; margin: v.$space-xl 0 0; list-style: none;
+}
+
+.field-row {
+  // Photo above the text up to desktop width; side by side (alternating) from there
+  display: grid; gap: 0;
+  @include m.from-tablet { max-width: 40em; }
+  @include m.from-desktop { max-width: none; grid-template-columns: 7fr 5fr; gap: v.$space-xl; align-items: center; }
+
+  &:nth-child(even) {
+    @include m.from-desktop {
+      grid-template-columns: 5fr 7fr;
+      .field-row__media { order: 2; }
+    }
+  }
+
+  &__media { position: relative; }
+  &__image { width: 100%; aspect-ratio: 8 / 5; object-fit: cover; border-radius: v.$radius-lg; }
+
+  // Honest label: this is an impression, not a photo of a real spot
+  &__impression {
+    position: absolute; left: v.$space-s; top: v.$space-s;
+    padding: 0 v.$space-s; border-radius: v.$radius-sm;
+    background: v.$color-buttercup-soft; color: v.$color-ink; font-size: v.$font-size-small; font-weight: v.$font-weight-bold;
+  }
+
+  &__body { display: flex; flex-direction: column; align-items: flex-start; }
+
+  // The field sign: on a phone it is planted on the bottom edge of the photo, like a sign in the grass.
+  &__name {
+    position: relative; // above the photo, which is positioned too
+    font-size: 1.1em; margin: -1.6em 0 0 v.$space-m;
+    @include m.from-desktop { margin: 0 0 v.$space-s; font-size: 1.2em; }
+  }
+
+  &__text { color: v.$color-ink-soft; }
+
+  &__facts {
+    list-style: none; padding: 0; margin: 0 0 v.$space-m; display: grid; gap: v.$space-xs;
+    li { display: flex; align-items: center; gap: v.$space-s; }
+    .icon { color: v.$color-forest; }
+  }
+
+  &__price {
+    margin-bottom: v.$space-m;
+    strong { font-family: v.$font-heading; font-size: 1.45em; }
+  }
+}
+
+// ---------- How booking works: a real sequence, so the steps are numbered ----------
+.home-steps {
+  background: v.$color-meadow; padding-block: v.$space-xxl;
+  @include m.from-desktop { padding-block: v.$space-section; }
+}
+
+.step-path {
+  counter-reset: step; list-style: none; padding: 0; margin: v.$space-xl 0;
+  display: grid; gap: v.$space-l;
+  @include m.from-tablet { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: v.$space-xl; }
+
+  &__item {
+    counter-increment: step; position: relative;
+    padding-left: 4em;                                   // phone: number on the left, path downwards
+    @include m.from-tablet { padding-left: 0; padding-top: 4em; }
+
+    // The number, in a buttercup circle
+    &::before {
+      content: counter(step);
+      position: absolute; left: 0; top: 0;
+      display: grid; place-items: center; width: 2.75em; height: 2.75em;
+      background: v.$color-buttercup; color: v.$color-ink; border: v.$border-thick solid v.$color-forest-dark;
+      border-radius: 50%; font-family: v.$font-heading; font-weight: v.$font-weight-bold; font-size: 1.1em;
+    }
+
+    // The mown path to the next step (decorative)
+    &:not(:last-child)::after {
+      content: ""; position: absolute;
+      left: 1.45em; top: 3.2em; bottom: -1.3em; border-left: 0.2em dashed v.$color-forest;
+      @include m.from-tablet { left: 3.6em; right: -1.5em; top: 1.45em; bottom: auto; border-left: 0; border-top: 0.2em dashed v.$color-forest; }
+    }
+  }
+
+  &__title { font-size: v.$font-size-h3; margin-bottom: v.$space-xs; }
+  &__text { margin: 0; color: v.$color-ink; }
+}
+
+// ---------- Practical information ----------
+.home-practical {
+  padding-block: v.$space-xxl;
+  @include m.from-desktop { padding-block: v.$space-section; }
+
+  &__grid {
+    display: grid; gap: v.$space-xl; margin-top: v.$space-l;
+    @include m.from-desktop { grid-template-columns: 5fr 7fr; gap: v.$space-xxl; }
+  }
+}
+
+.season {
+  &__title { font-size: v.$font-size-h3; }
+
+  // Twelve months: open ones are solid green with a tick, closed ones dashed and grey (never colour alone)
+  &__months {
+    list-style: none; padding: 0; margin: v.$space-m 0 0;
+    display: grid; gap: v.$space-xs; grid-template-columns: repeat(6, minmax(0, 1fr));
+    // One row of twelve when the strip has the full width; two rows of six in the narrower column on desktop
+    @include m.from-tablet { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+    @include m.from-desktop { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  }
+
+  &__month {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.1em;
+    min-height: 3.6em; padding: v.$space-xs 0;
+    border: v.$border-thick dashed v.$color-border; border-radius: v.$radius-sm;
+    color: v.$color-ink-soft; font-size: v.$font-size-small; background: v.$color-white;
+
+    &--open {
+      border-style: solid; border-color: v.$color-forest; background: v.$color-forest; color: v.$color-white;
+      font-weight: v.$font-weight-bold;
+    }
+  }
+}
+
+.facilities {
+  list-style: none; padding: 0; margin: 0; display: grid; gap: v.$space-l;
+  @include m.from-tablet { grid-template-columns: 1fr 1fr; }
+
+  &__item { display: flex; gap: v.$space-m; align-items: flex-start; }
+
+  &__icon {
+    display: grid; place-items: center; flex: none; width: 2.75em; height: 2.75em;
+    border-radius: 50%; background: v.$color-meadow; color: v.$color-forest-dark;
+  }
+
+  &__title { display: block; font-size: 1.05em; }
+  &__text { display: block; color: v.$color-ink-soft; }
+}
+
+// ---------- Closing call to action ----------
+.home-closing {
+  background: v.$color-forest; color: v.$color-white; padding-block: v.$space-xxl;
+
+  &__inner {
+    display: grid; gap: v.$space-l;
+    @include m.from-tablet { grid-template-columns: 1fr auto; align-items: center; gap: v.$space-xl; }
+  }
+
+  &__title { font-size: v.$font-size-home-section; }
+  &__text { margin: 0; font-size: v.$font-size-large; }
+
+  &__actions {
+    display: flex; flex-wrap: wrap; align-items: center; gap: v.$space-m v.$space-l;
+  }
+
+  &__phone {
+    @include m.tap-target;
+    @include m.focus-ring-light;
+    display: inline-flex; align-items: center; gap: v.$space-s;
+    color: v.$color-white; font-weight: v.$font-weight-bold;
+    &:hover { color: v.$color-white; }
+  }
+}

@@ -24,6 +24,13 @@
     &:hover { background: v.$color-meadow; color: v.$color-forest-dark; }
   }
 
+  // Main action on a forest-green surface (home page): ink on buttercup, 10.6 : 1
+  &--sun {
+    @include m.focus-ring-light;
+    background: v.$color-buttercup; border-color: v.$color-buttercup; color: v.$color-ink;
+    &:hover { background: v.$color-buttercup-soft; border-color: v.$color-buttercup-soft; color: v.$color-ink; }
+  }
+
   // Something that cannot simply be undone, e.g. cancelling a reservation
   &--danger {
     background: v.$color-error; border-color: v.$color-error; color: v.$color-white;

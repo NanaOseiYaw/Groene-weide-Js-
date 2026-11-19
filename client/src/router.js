@@ -1,5 +1,6 @@
 // All pages and their addresses.
 //   meta.layout         'site' (guests, default) or 'admin' (staff)
+//   meta.home           the home page: full-width page and a menu to its sections
 //   meta.title          text in the browser tab
 //   meta.requiresStaff  only for signed-in staff; others go to the sign-in page and come back afterwards
 // The API checks sign-in again for every staff request: this guard only decides which page to show.
@@ -9,7 +10,8 @@ import HomePage from './pages/HomePage.vue';
 import { useAuth } from './stores/auth.js';
 
 const routes = [
-  { path: '/', component: HomePage, meta: { title: 'Camping De Groene Weide – reserveer je plek' } },
+  // home: full-width bands and the section menu in the header (SiteLayout)
+  { path: '/', component: HomePage, meta: { home: true, title: 'Camping De Groene Weide – reserveer je plek' } },
   { path: '/reserveren', component: () => import('./pages/BookingPage.vue'), meta: { title: 'Reserveren – Camping De Groene Weide' } },
   { path: '/account/login', component: () => import('./pages/account/LoginPage.vue'), meta: { layout: 'admin', title: 'Inloggen – De Groene Weide' } },
   {

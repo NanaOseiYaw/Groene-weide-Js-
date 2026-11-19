@@ -2,15 +2,19 @@
   Staff layout: calmer and larger than the guest site, extra high contrast (black on white),
   no images. A large menu and a clear "Uitloggen" button. Port of AdminLayout.razor.
   The design direction of the staff section is kept on purpose (chosen for Anita, see the migration plan).
+  Text size: Standaard (20px) by default, adjustable per person in the header (useTextSize).
   When printing (daily overview) the header and menu disappear (_admin.scss).
 -->
 <script setup>
 import { useRouter } from 'vue-router';
 import AppIcon from '../components/ui/AppIcon.vue';
 import SiteLogo from '../components/ui/SiteLogo.vue';
+import TextSizeControl from '../components/admin/TextSizeControl.vue';
+import { useTextSize } from '../composables/useTextSize.js';
 import { useAuth } from '../stores/auth.js';
 
 const auth = useAuth();
+const { textSize } = useTextSize();
 const router = useRouter();
 
 const menu = [
@@ -28,7 +32,7 @@ async function signOut() {
 </script>
 
 <template>
-  <div class="admin">
+  <div class="admin" :data-text-size="textSize">
     <a class="skip-link" href="#content">Ga naar de inhoud</a>
 
     <header class="admin-header">
@@ -37,9 +41,12 @@ async function signOut() {
           <SiteLogo />
           <span>De Groene Weide <span class="admin-header__sub">medewerkers</span></span>
         </RouterLink>
-        <div v-if="auth.staff.value" class="admin-header__user">
-          <span>Ingelogd als <strong>{{ auth.staff.value.name }}</strong></span>
-          <button type="button" class="btn btn--secondary btn--small" @click="signOut"><AppIcon name="sign-out" /> Uitloggen</button>
+        <div class="admin-header__tools">
+          <TextSizeControl />
+          <div v-if="auth.staff.value" class="admin-header__user">
+            <span>Ingelogd als <strong>{{ auth.staff.value.name }}</strong></span>
+            <button type="button" class="btn btn--secondary btn--small" @click="signOut"><AppIcon name="sign-out" /> Uitloggen</button>
+          </div>
         </div>
       </div>
       <nav v-if="auth.staff.value" class="admin-nav" aria-label="Medewerkersmenu">

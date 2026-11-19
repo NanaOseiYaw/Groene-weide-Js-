@@ -70,6 +70,12 @@ export function loadConfig(env = process.env) {
       email: env.CAMPSITE_EMAIL || '',
     }),
     ai: readAiSettings(env, nodeEnv),
+    // Requests per visitor (IP address) before a short pause: stops scripts that try many passwords
+    // or create reservations in bulk. Far above what a real guest or staff member ever needs.
+    rateLimits: Object.freeze({
+      loginPer15Minutes: readNonNegativeInteger('RATE_LIMIT_LOGIN', env.RATE_LIMIT_LOGIN, 20),
+      reservationsPerHour: readNonNegativeInteger('RATE_LIMIT_RESERVATIONS', env.RATE_LIMIT_RESERVATIONS, 30),
+    }),
   });
 }
 

@@ -50,14 +50,21 @@ function onDateInput(event) {
 /** Through a click handler, not onclick="…": the Content-Security-Policy forbids inline scripts. */
 const print = () => window.print();
 
-const phone = (row) => (row.phone?.trim() ? ` · tel. ${row.phone}` : '');
+const phone = (row) => (row.phone?.trim() ? `tel. ${row.phone.trim()}` : '');
+/** "3 nachten · tel. 0612345678 · vriend van Bert": only the parts that are known. */
+const arrivalMeta = (row) => [formatNights(row.nights), phone(row), row.isFriendOfBert ? 'vriend van Bert' : ''].filter(Boolean).join(' · ');
 const plural = (count, one, more) => (count === 1 ? one : more);
 </script>
 
 <template>
   <h1>Dagoverzicht</h1>
 
-  <template v-if="date">
+  <!-- The day first (what am I looking at?), then the ways to pick another day. -->
+  <section v-if="date" class="day-bar" aria-labelledby="day-title">
+    <div class="day-bar__heading">
+      <h2 id="day-title" class="day-title" aria-live="polite">{{ formatLongDate(date) }}</h2>
+      <p v-if="date === today" class="day-bar__today"><AppIcon name="day" /> Vandaag</p>
+    </div>
     <div class="day-picker">
       <div class="field">
         <label for="day">Kies een dag</label>
@@ -65,14 +72,12 @@ const plural = (count, one, more) => (count === 1 ? one : more);
       </div>
       <div class="btn-row">
         <button type="button" class="btn btn--secondary" @click="showDay(addDays(date, -1))"><AppIcon name="chevron-left" /> Vorige dag</button>
-        <button type="button" class="btn btn--secondary" @click="showDay(today)">Vandaag</button>
+        <button type="button" class="btn btn--secondary" :disabled="date === today" @click="showDay(today)">Vandaag</button>
         <button type="button" class="btn btn--secondary" @click="showDay(addDays(date, 1))">Volgende dag <AppIcon name="chevron-right" /></button>
         <button type="button" class="btn btn--secondary no-print" @click="print"><AppIcon name="printer" /> Afdrukken</button>
       </div>
     </div>
-
-    <h2 class="day-title" aria-live="polite">{{ formatLongDate(date) }}</h2>
-  </template>
+  </section>
 
   <AlertBox v-if="loadError" kind="error">
     <p>{{ loadError }}</p>
@@ -80,41 +85,59 @@ const plural = (count, one, more) => (count === 1 ? one : more);
   </AlertBox>
   <LoadingState v-else-if="!overview" text="Even geduld, het dagoverzicht wordt geladen." />
   <template v-else>
-    <ul class="stat-tiles">
+    <ul class="stat-tiles" aria-label="De dag in cijfers">
       <li class="stat-tiles__item">
-        <AppIcon name="arrival" /><span class="stat-tiles__number">{{ overview.stats.checkIns }}</span>
-        {{ plural(overview.stats.checkIns, 'aankomst', 'aankomsten') }}
+        <span class="stat-tiles__icon"><AppIcon name="arrival" /></span>
+        <span class="stat-tiles__number">{{ overview.stats.checkIns }}</span>
+        <span class="stat-tiles__label">{{ plural(overview.stats.checkIns, 'aankomst', 'aankomsten') }}</span>
       </li>
       <li class="stat-tiles__item">
-        <AppIcon name="departure" /><span class="stat-tiles__number">{{ overview.stats.checkOuts }}</span>
-        {{ plural(overview.stats.checkOuts, 'vertrek', 'vertrekken') }}
+        <span class="stat-tiles__icon"><AppIcon name="departure" /></span>
+        <span class="stat-tiles__number">{{ overview.stats.checkOuts }}</span>
+        <span class="stat-tiles__label">{{ plural(overview.stats.checkOuts, 'vertrek', 'vertrekken') }}</span>
       </li>
       <li class="stat-tiles__item">
-        <AppIcon name="location" /><span class="stat-tiles__number">{{ overview.stats.occupiedSpots }}</span>
-        van {{ overview.stats.totalSpots }} plekken bezet
+        <span class="stat-tiles__icon"><AppIcon name="location" /></span>
+        <span class="stat-tiles__number">{{ overview.stats.occupiedSpots }}</span>
+        <span class="stat-tiles__label">van {{ overview.stats.totalSpots }} plekken bezet</span>
       </li>
       <li class="stat-tiles__item">
-        <AppIcon name="people" /><span class="stat-tiles__number">{{ overview.stats.occupancyPercent }}%</span> bezetting
+        <span class="stat-tiles__icon"><AppIcon name="people" /></span>
+        <span class="stat-tiles__number">{{ overview.stats.occupancyPercent }}%</span>
+        <span class="stat-tiles__label">bezetting</span>
       </li>
     </ul>
 
     <div class="day-lists">
-      <section aria-labelledby="arrivals-heading">
-        <h3 id="arrivals-heading"><AppIcon name="arrival" /> Wie komt er?</h3>
-        <p v-if="overview.arrivals.length === 0" class="day-lists__empty">Niemand komt op deze dag aan.</p>
+      <section class="day-list" aria-labelledby="arrivals-heading">
+        <h3 id="arrivals-heading" class="day-list__title">
+          <AppIcon name="arrival" /> Wie komt er?
+          <span class="day-list__count">{{ overview.arrivals.length }}</span>
+        </h3>
+        <p v-if="overview.arrivals.length === 0" class="day-list__empty"><AppIcon name="info" /> Niemand komt op deze dag aan.</p>
         <ul v-else class="name-list">
-          <li v-for="r in overview.arrivals" :key="r.id">
-            <strong>{{ r.spotName }}</strong> {{ r.guestName }}
-            <span class="name-list__meta">{{ formatNights(r.nights) }}{{ phone(r) }}{{ r.isFriendOfBert ? ' · vriend van Bert' : '' }}</span>
+          <li v-for="r in overview.arrivals" :key="r.id" class="name-list__item">
+            <span class="name-list__spot">{{ r.spotName }}</span>
+            <span>
+              <strong class="name-list__name">{{ r.guestName }}</strong>
+              <span class="name-list__meta">{{ arrivalMeta(r) }}</span>
+            </span>
           </li>
         </ul>
       </section>
-      <section aria-labelledby="departures-heading">
-        <h3 id="departures-heading"><AppIcon name="departure" /> Wie vertrekt er?</h3>
-        <p v-if="overview.departures.length === 0" class="day-lists__empty">Niemand vertrekt op deze dag.</p>
+      <section class="day-list" aria-labelledby="departures-heading">
+        <h3 id="departures-heading" class="day-list__title">
+          <AppIcon name="departure" /> Wie vertrekt er?
+          <span class="day-list__count">{{ overview.departures.length }}</span>
+        </h3>
+        <p v-if="overview.departures.length === 0" class="day-list__empty"><AppIcon name="info" /> Niemand vertrekt op deze dag.</p>
         <ul v-else class="name-list">
-          <li v-for="r in overview.departures" :key="r.id">
-            <strong>{{ r.spotName }}</strong> {{ r.guestName }} <span class="name-list__meta">{{ phone(r) }}</span>
+          <li v-for="r in overview.departures" :key="r.id" class="name-list__item">
+            <span class="name-list__spot">{{ r.spotName }}</span>
+            <span>
+              <strong class="name-list__name">{{ r.guestName }}</strong>
+              <span v-if="phone(r)" class="name-list__meta">{{ phone(r) }}</span>
+            </span>
           </li>
         </ul>
       </section>

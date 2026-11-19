@@ -11,7 +11,8 @@ import { serveClientApp } from './lib/client-app.js';
 import { createLogEmailSender } from './lib/email.js';
 import { errorHandler, notFound } from './lib/errors.js';
 import { createFakePaymentService } from './lib/payment.js';
-import { securityHeaders } from './lib/security-headers.js';
+import { createRateLimit } from './lib/rate-limit.js';
+import { securityHeaders, strictTransportSecurity } from './lib/security-headers.js';
 import { createAdminRouter } from './modules/admin/admin.routes.js';
 import { createAiRouter } from './modules/ai/ai.routes.js';
 import { checkOrigin, loadSession, requireStaff } from './modules/auth/auth.middleware.js';
@@ -48,6 +49,7 @@ export function createApp({
   if (config.isProduction) app.set('trust proxy', 1); // behind the hosting's HTTPS proxy: trust its headers
 
   app.use(securityHeaders);
+  if (config.isProduction) app.use(strictTransportSecurity); // only over HTTPS, so only in production
 
   // Uploaded spot photos are public (guests see them in the spot pop-up).
   app.use('/uploads/spots', express.static(config.spotPhotosFolder, { index: false, dotfiles: 'deny', fallthrough: true, maxAge: '7d' }));
@@ -68,6 +70,19 @@ export function createApp({
       res.status(503).json({ status: 'error' });
     }
   });
+
+  // Rate limits on the two requests worth abusing: guessing passwords and creating reservations
+  // in bulk (an unpaid reservation still holds its spot). They run before the routes themselves.
+  api.post('/auth/login', createRateLimit({
+    max: config.rateLimits.loginPer15Minutes,
+    windowMs: 15 * 60_000,
+    message: 'Te veel inlogpogingen vanaf dit apparaat. Wacht een kwartier en probeer het dan opnieuw.',
+  }));
+  api.post('/reservations', createRateLimit({
+    max: config.rateLimits.reservationsPerHour,
+    windowMs: 60 * 60_000,
+    message: 'Er zijn vanaf dit apparaat veel reserveringen gemaakt. Wacht even, of bel ons om te reserveren.',
+  }));
 
   // Public endpoints for the guest booking flow.
   api.use(createCampsiteRouter(deps));

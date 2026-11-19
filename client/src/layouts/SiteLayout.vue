@@ -1,13 +1,24 @@
 <!--
   Guest layout: skip link, header with name and phone number, the page, and a footer with the
   opening period and contact details. Port of MainLayout.razor.
+  On the home page (meta.home) the page uses the full width and the header gets a menu to its sections.
 -->
 <script setup>
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 import AppIcon from '../components/ui/AppIcon.vue';
 import SiteLogo from '../components/ui/SiteLogo.vue';
 import { openingText, useCampsite } from '../composables/useCampsite.js';
 
 const campsite = useCampsite();
+const route = useRoute();
+const isHome = computed(() => route.meta.home === true);
+
+const sections = [
+  { href: '#velden', label: 'De velden' },
+  { href: '#zo-werkt-het', label: 'Zo reserveer je' },
+  { href: '#praktisch', label: 'Goed om te weten' },
+];
 </script>
 
 <template>
@@ -19,6 +30,11 @@ const campsite = useCampsite();
         <SiteLogo />
         <span>{{ campsite.name }}</span>
       </RouterLink>
+      <nav v-if="isHome" class="site-nav" aria-label="Op deze pagina">
+        <ul class="site-nav__list">
+          <li v-for="section in sections" :key="section.href"><a class="site-nav__link" :href="section.href">{{ section.label }}</a></li>
+        </ul>
+      </nav>
       <a v-if="campsite.phone" class="site-header__phone" :href="campsite.phoneHref">
         <AppIcon name="phone" />
         <span><span class="site-header__phone-label">Liever bellen? </span>{{ campsite.phone }}</span>
@@ -26,7 +42,7 @@ const campsite = useCampsite();
     </div>
   </header>
 
-  <main id="content" class="site-main" tabindex="-1">
+  <main id="content" :class="['site-main', { 'site-main--full': isHome }]" tabindex="-1">
     <slot />
   </main>
 
@@ -40,7 +56,7 @@ const campsite = useCampsite();
         <h2 id="footer-open" class="site-footer__title">Openingstijden</h2>
         <p><AppIcon name="calendar" /> {{ openingText(campsite.season) }}</p>
       </section>
-      <section class="site-footer__block" aria-labelledby="footer-contact">
+      <section v-if="campsite.phone || campsite.email" class="site-footer__block" aria-labelledby="footer-contact">
         <h2 id="footer-contact" class="site-footer__title">Contact</h2>
         <ul class="site-footer__list">
           <li v-if="campsite.phone"><a :href="campsite.phoneHref"><AppIcon name="phone" /> {{ campsite.phone }}</a></li>

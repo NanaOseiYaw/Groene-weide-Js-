@@ -57,6 +57,13 @@ $admin-header:    #0f2e1b;  // white on it 14.7 : 1
 $admin-border:    #1d1d1b;
 $admin-stripe:    #f1f3ee;
 $admin-font-base: 1.112em;  // 20px when the body is 18px
+// Text size chosen in the staff header (useTextSize.js). Standard is the default and stays large.
+$admin-text-sizes: (
+  small:    1em,      // 18px
+  standard: 1.112em,  // 20px (default)
+  large:    1.28em,   // 23px
+  xlarge:   1.445em,  // 26px
+);
 
 // ---------- Typography ----------
 // No downloads and no CDN: we use fonts that are already on the device.
@@ -73,7 +80,10 @@ $font-size-large:  1.2em;
 $font-size-h1:     2.25em;
 $font-size-h2:     1.6em;
 $font-size-h3:     1.25em;
-$font-size-hero:   clamp(2.1em, 4.5vw, 3.1em);
+// Home page only (editorial scale). The em part keeps growing with browser zoom and text size.
+$font-size-display:      clamp(2.2em, 1.4em + 3.2vw, 3.6em);  // hero heading
+$font-size-statement:    clamp(1.35em, 1.1em + 1vw, 1.85em);   // introduction in the heading font
+$font-size-home-section: clamp(1.75em, 1.3em + 1.6vw, 2.4em);  // section headings
 $font-weight-regular: 400;
 $font-weight-bold:    700;
 $measure:          40em;     // max ~75 characters per line
@@ -85,6 +95,7 @@ $space-m:   1em;
 $space-l:   1.5em;
 $space-xl:  2.5em;
 $space-xxl: 4em;
+$space-section: 6em;  // vertical space of a home page band on wide screens
 
 // ---------- Sizes ----------
 $tap-target-min: 2.75em;

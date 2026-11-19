@@ -31,7 +31,8 @@ export function createSilentLogger() {
 
 /** Settings for tests: the in-memory database, no payment delay, and optionally extra variables. */
 export function createTestConfig(env = {}) {
-  return loadConfig({ NODE_ENV: 'test', DATABASE_PATH: ':memory:', PAYMENT_DELAY_MS: '0', ...env });
+  // Rate limits off by default: tests make many requests from one address. rate-limit.test.js sets them.
+  return loadConfig({ NODE_ENV: 'test', DATABASE_PATH: ':memory:', PAYMENT_DELAY_MS: '0', RATE_LIMIT_LOGIN: '0', RATE_LIMIT_RESERVATIONS: '0', ...env });
 }
 
 /**

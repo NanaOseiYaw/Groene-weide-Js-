@@ -10,6 +10,46 @@ Alle tokens staan in `client/src/styles/_variables.scss`, de mixins in `_mixins.
 - **Herkenbaar element:** het *veldbord* (`.field-sign`, `FieldSign.vue`): de naam van een veld als geschilderd bord met een paaltje, zoals bij een weiland. Alleen voor de velden (Kampeerveld, Camperveld, Safariveld). De rest blijft rustig.
 - **Bewust niet:** crème met terracotta, hoofdletterlabels boven koppen, pijltjes in knoppen, overal dezelfde kaart.
 
+## Herontwerp voorpagina en beheer (19-11-2026)
+
+Twee gezichten, één merk: dezelfde tokens (bosgroen, boterbloemgeel, Georgia-koppen, weidebeelden), maar een andere opbouw.
+
+### Voorpagina (`HomePage.vue`, `_home.scss`)
+
+Een eigen landingspagina, redactioneel en ruim, met banden over de volle breedte (hooi → wit → weide → hooi → bosgroen). Niets lijkt op het beheer: geen tegels, geen tabellen.
+
+| Deel | Keuze | Waarom |
+| :-- | :-- | :-- |
+| Hero | Foto over de volle breedte; kop op een effen bosgroene plaat die uit de foto omhoog komt. Kop in Georgia normaal gewicht, groot (`$font-size-display`). Knop `btn--sun` (inkt op boterbloemgeel, 10,6 : 1) | Tekst staat nooit op de foto zelf (contrast). Eén beweging bij het laden: de plaat schuift 1,5em omhoog, zonder vervagen, zodat de tekst ook leesbaar is als de animatie niet loopt; uit bij `prefers-reduced-motion` |
+| Inleiding | Eén zin in Georgia (`$font-size-statement`) met de echte cijfers (60 plekken, 3 velden) en een korte zin ernaast | Het verhaal van de camping in één oogopslag, zonder rij met grote getallen |
+| Velden | Grote foto naast tekst, om en om links en rechts (vanaf `$bp-desktop`); daaronder gestapeld. Het veldbord is de kop (`h3`) en staat op de telefoon en tablet op de onderrand van de foto "geplant" | Het veldbord blijft het enige herkenbare element; feiten (personen, stroom, water) met icoon en tekst |
+| Zo reserveer je | Genummerde stappen 1-2-3 met een gestippeld "gemaaid pad" ertussen | Het is echt een volgorde, dus nummers zijn hier op hun plaats |
+| Goed om te weten | Seizoensstrook van 12 maanden uit de instellingen (open: groen vlak + vinkje; dicht: gestippelde rand), voorzieningen met icoon | Nooit alleen kleur: vorm, vinkje en een verborgen tekst "open"/"gesloten" per maand |
+| Afsluiting | Bosgroene band met dezelfde knop "Reserveer een plek" en het telefoonnummer | Dezelfde actie heet overal hetzelfde |
+
+Kopmenu: alleen op de voorpagina (vanaf `$bp-desktop`) links naar de drie delen; `meta.home` in de router zet ook de volle breedte aan (`.site-main--full`).
+
+### Beheer (`AdminLayout.vue`, `_admin.scss`)
+
+De richting blijft (rustig, groot, zwart op wit, geen sfeerbeelden). Verbeteringen voor Anita en Bert:
+
+| Wat | Keuze |
+| :-- | :-- |
+| **Tekstgrootte** | Keuze in de kop, ook al op de inlogpagina: Kleiner (18px), **Standaard (20px, de standaard)**, Groot (23px), Extra groot (26px). Echte keuzerondjes (pijltjestoetsen werken), gekozen = wit vlak met vinkje. Onthouden per browser (`useTextSize.js`, `localStorage`). Alles in het beheer is in `em`, dus knoppen, tabellen en kalender groeien mee. Zoomen in de browser werkt daarbovenop |
+| Menu | Huidige pagina als wit tabblad dat aansluit op de pagina, met gele balk erboven en onderstreept (niet alleen kleur). Op de telefoon twee kolommen met het icoon boven het woord |
+| Dagoverzicht | De gekozen dag staat bovenaan, samen met de knoppen in één paneel; "Vandaag" als label naast de datum. Cijfers als tegel met icoon in een cirkel, getal en woord. Aankomsten en vertrekken als lijst met donkere kopbalk en het aantal; de plek als omlijnd label naast de naam. Geen kleine grijze tekst meer |
+| Kalender in het beheer | Zwarte rand zoals de rest; aankomsten, vertrekken en bezetting per dag 0,9em (18px) in plaats van 0,75em (15px) |
+| Vinkjes en rondjes | Waren 18,6px omdat formulierelementen in de browser hun eigen letter van 13px hebben; nu `font-size: inherit`, dus 1,4em = 28px |
+
+### Controle (19-11-2026)
+
+Gemeten in Chrome (headless, eigen script) op 375, 640 (= 1280 bij 200% zoom), 768 en 1280 px, met een tijdelijk testaccount in een kopie van de database:
+
+- Geen horizontaal scrollen op enige pagina en breedte, ook niet bij Extra groot.
+- Elke pagina: één `h1`, geen overgeslagen kopniveaus, alle knoppen en links minstens 44 px, alle velden met label, alle afbeeldingen met `alt`.
+- Kleinste tekst in het beheer: 18px (bij Standaard). Kleinste tekst op de gastsite: 16,2px (labels "Impressie").
+- Tekstgrootte met het toetsenbord: twee keer pijl-rechts vanaf Standaard geeft Extra groot (26px), wordt onthouden, focusring zichtbaar.
+
 ### Uitgangspunt: skill "Ui ux pro max"
 
 Opdracht aan de skill: `campsite booking nature accessible senior`, met variatie, beweging en dichtheid alle drie op 2 (rustig).
@@ -54,7 +94,7 @@ Opdracht aan de skill: `campsite booking nature accessible senior`, met variatie
 
 | Component | Klassen / bestand | Varianten en toestanden | Toegankelijkheid |
 | :-- | :-- | :-- | :-- |
-| Knop | `.btn`, `_buttons.scss` | `--secondary`, `--danger`, `--large`, `--small`, `--block`; hover, focus, disabled, `aria-busy="true"` (laden) | Altijd tekst; minimaal 2.75em; focus-ring met gele halo |
+| Knop | `.btn`, `_buttons.scss` | `--secondary`, `--danger`, `--sun` (op bosgroen), `--large`, `--small`, `--block`; hover, focus, disabled, `aria-busy="true"` (laden) | Altijd tekst; minimaal 2.75em; focus-ring met gele halo |
 | Knoppenrij | `.btn-row`, `--split` | Terug links, Verder rechts | |
 | Kaart | `.card`, `--meadow`; `_cards.scss` | | Alleen om iets af te bakenen |
 | Feitenlijst | `.facts`, `__item` | dt/dd met icoon | |

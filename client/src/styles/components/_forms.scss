@@ -29,6 +29,8 @@ textarea { min-height: 6em; resize: vertical; }
 
 input[type="checkbox"], input[type="radio"] {
   @include m.focus-ring;
+  // font-size: browsers give form controls their own small font (13px), so 1.4em was only 18px
+  font-size: inherit;
   width: 1.4em; height: 1.4em; accent-color: v.$color-forest; margin: 0; flex: none;
 }
 

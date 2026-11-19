@@ -24,6 +24,17 @@ export function securityHeaders(req, res, next) {
     'X-Frame-Options': 'DENY', // the site may not be shown inside another site's frame
     'Referrer-Policy': 'strict-origin-when-cross-origin',
     'Cross-Origin-Opener-Policy': 'same-origin',
+    // No camera, microphone, location or payment API for this site, and none for embedded content.
+    'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=()',
   });
+  next();
+}
+
+/**
+ * Production only (the site then runs on HTTPS): browsers remember for a year to use HTTPS for
+ * this site, also when someone types http:// or follows an old link.
+ */
+export function strictTransportSecurity(req, res, next) {
+  res.set('Strict-Transport-Security', 'max-age=31536000');
   next();
 }
