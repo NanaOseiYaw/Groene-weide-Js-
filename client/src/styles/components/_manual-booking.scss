@@ -1,0 +1,26 @@
+@use "../variables" as v;
+@use "../mixins" as m;
+
+// Manual (phone) reservation: two clear sections, one below the other.
+.manual-booking {
+  max-width: v.$step-max;
+
+  &__section {
+    padding: v.$space-l 0; border-top: v.$border-thick solid v.$admin-border;
+    h2 { margin-top: 0; }
+  }
+}
+
+// Generic pop-up (ModalDialog), e.g. to confirm taking a spot out of use
+.modal {
+  width: calc(100% - 2em); max-width: 34em; padding: 0;
+  color: v.$admin-text; background: v.$admin-bg;
+  border: v.$border-thick solid v.$admin-border; border-radius: v.$radius-lg; box-shadow: v.$shadow-high;
+  font-size: v.$admin-font-base;
+
+  &::backdrop { background: v.$backdrop; }
+
+  &__content { padding: v.$space-l; }
+  h2 { margin-top: 0; font-family: v.$font-body; }
+  .checkbox { display: flex; }
+}

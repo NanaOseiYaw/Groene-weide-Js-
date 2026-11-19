@@ -1,0 +1,95 @@
+@use "../variables" as v;
+@use "../mixins" as m;
+
+// Site frame: skip link, header, main and footer (guest side).
+
+// "Ga naar de inhoud": only visible when it has focus.
+.skip-link {
+  position: absolute; left: v.$space-m; top: -10em; z-index: 100;
+  padding: v.$space-s v.$space-m; background: v.$color-white; color: v.$color-ink; font-weight: v.$font-weight-bold;
+  border: v.$border-thick solid v.$color-ink; border-radius: v.$radius;
+  &:focus { top: v.$space-s; }
+}
+
+.site-logo { width: 2.2em; height: 2.2em; flex: none; border-radius: v.$radius-sm; }
+
+.site-header {
+  background: v.$color-white;
+  border-bottom: v.$border-thin solid v.$color-border-soft;
+
+  &__inner {
+    max-width: v.$content-max; margin: 0 auto; padding: v.$space-s v.$space-m;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: v.$space-s v.$space-l;
+  }
+
+  &__brand {
+    @include m.tap-target;
+    display: inline-flex; align-items: center; gap: v.$space-s;
+    font-family: v.$font-heading; font-weight: v.$font-weight-bold; font-size: v.$font-size-large;
+    @include m.below-tablet { font-size: 1.05em; }
+    color: v.$color-forest-dark; text-decoration: none;
+    &:hover { color: v.$color-forest-dark; text-decoration: underline; }
+  }
+
+  &__phone {
+    @include m.tap-target;
+    display: inline-flex; align-items: center; gap: v.$space-s;
+    font-weight: v.$font-weight-bold; text-decoration: none;
+    &:hover { text-decoration: underline; }
+  }
+
+  // On a phone the number itself is enough
+  &__phone-label { @include m.below-tablet { @include m.visually-hidden; } }
+  // Next to the section menu on the home page too, so the header stays one row
+  .site-nav ~ &__phone &__phone-label { @include m.from-desktop { @include m.visually-hidden; } }
+}
+
+// Home page only: links to the sections of the page. Hidden on a phone, where scrolling is quicker.
+.site-nav {
+  display: none; margin-inline: auto v.$space-s;
+  @include m.from-desktop { display: block; }
+
+  &__list { display: flex; gap: v.$space-xs; list-style: none; margin: 0; padding: 0; }
+
+  &__link {
+    @include m.tap-target;
+    display: inline-flex; align-items: center; padding: 0 v.$space-m;
+    color: v.$color-ink; font-weight: v.$font-weight-bold; text-decoration: none; border-radius: v.$radius;
+    @include m.transition(background-color);
+    &:hover { color: v.$color-forest-dark; background: v.$color-meadow-soft; text-decoration: underline; }
+  }
+}
+
+.site-main {
+  flex: 1 0 auto; width: 100%;
+  max-width: v.$content-max; margin: 0 auto; padding: v.$space-l v.$space-m v.$space-xxl;
+  &:focus { outline: none; }
+
+  // The home page lays out its own full-width bands
+  &--full { max-width: none; padding: 0; }
+}
+
+.site-footer {
+  background: v.$color-forest-dark; color: v.$color-white;
+
+  a {
+    color: v.$color-white; display: inline-flex; align-items: center; gap: v.$space-s; min-height: v.$tap-target-min;
+    @include m.focus-ring-light;
+    &:hover { color: v.$color-white; }
+  }
+
+  &__inner {
+    max-width: v.$content-max; margin: 0 auto; padding: v.$space-xl v.$space-m v.$space-l;
+    display: grid; gap: v.$space-l;
+    @include m.from-tablet { grid-template-columns: 2fr 1fr 1fr; }
+  }
+
+  &__title { font-size: v.$font-size-large; margin-bottom: v.$space-s; }
+  &__block p { margin: 0; }
+  &__list { list-style: none; padding: 0; margin: 0; }
+
+  &__bottom {
+    max-width: v.$content-max; margin: 0 auto; padding: v.$space-s v.$space-m v.$space-l;
+    border-top: v.$border-thin solid v.$color-divider-on-dark;
+  }
+}

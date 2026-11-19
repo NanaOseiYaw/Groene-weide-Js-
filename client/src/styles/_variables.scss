@@ -1,0 +1,127 @@
+// =====================================================================
+// Design tokens for Camping De Groene Weide. Every colour, size and space lives here;
+// components only use these variables. Choices and usage: docs/design-system.md
+//
+// Starting point: the "Ui ux pro max" skill (query "campsite booking nature accessible senior",
+// variance/motion/density 2). Taken over: minimal and spacious layout, Atkinson Hyperlegible
+// (here only as an installed system font, no Google Fonts CDN), subtle motion off with
+// prefers-reduced-motion, SVG icons, visible focus, 4.5 : 1 contrast. Not taken over: its
+// blue SaaS palette and GSAP scroll reveals; the farm-meadow green below fits the subject.
+//
+// Contrast (WCAG AA, checked):
+//   white on forest, status and alert colours     >= 4.5 : 1
+//   ink on hay, meadow and buttercup              >= 4.5 : 1
+//   field and card borders                        >= 3 : 1
+// =====================================================================
+@use "sass:color";
+
+// ---------- Base palette ("farm meadow") ----------
+$color-forest:         #1b5e34;  // brand, buttons, header (white on it 7.8 : 1)
+$color-forest-dark:    #123f23;  // hover, admin header
+$color-meadow:         #e3eedf;  // soft green surfaces
+$color-meadow-soft:    #eef4ea;  // even lighter surface
+$color-hay:            #f5f7f0;  // page background
+$color-buttercup:      #f2c94c;  // accent: only as a surface behind ink, or as focus halo
+$color-buttercup-soft: #fdf3d3;
+$color-ink:            #1d1d1b;  // text
+$color-ink-soft:       #474a41;  // secondary text (8.4 : 1 on hay)
+$color-white:          #ffffff;
+$color-border:         #6b7064;  // form field borders (5.1 : 1 on white)
+$color-border-soft:    #d5dccd;  // decorative dividers only
+
+// ---------- Status colours (BUILD.md, do not change) ----------
+$status-free:        #1b6e3c;
+$status-almost-full: #b35c00;
+$status-full:        #b3261e;
+$status-deal:        #0b5cad;
+$status-closed:      #5f6368;
+$status-held:        #6a3fa0;
+
+// ---------- Semantic colours (alerts; always with an icon and text) ----------
+$color-error:          #b3261e;
+$color-error-dark:     #8c1d17;
+$color-error-soft:     #fbe9e7;
+$color-success:        #1b6e3c;
+$color-success-soft:   #e3f1e7;
+$color-warning:        #8a4600;
+$color-warning-soft:   #fdf0e0;
+$color-info:           #0b5cad;
+$color-info-soft:      #e6eff9;
+$color-disabled:       #e8e9e3;
+$color-disabled-border:#8a8d84;
+
+// ---------- Admin: calmer, larger, extra high contrast ----------
+$admin-bg:        #ffffff;
+$admin-text:      #000000;  // 21 : 1
+$admin-header:    #0f2e1b;  // white on it 14.7 : 1
+$admin-border:    #1d1d1b;
+$admin-stripe:    #f1f3ee;
+$admin-font-base: 1.112em;  // 20px when the body is 18px
+// Text size chosen in the staff header (useTextSize.js). Standard is the default and stays large.
+$admin-text-sizes: (
+  small:    1em,      // 18px
+  standard: 1.112em,  // 20px (default)
+  large:    1.28em,   // 23px
+  xlarge:   1.445em,  // 26px
+);
+
+// ---------- Typography ----------
+// No downloads and no CDN: we use fonts that are already on the device.
+// Body: Atkinson Hyperlegible when installed, otherwise the system UI font (Segoe UI, San Francisco, Roboto).
+$font-body:    "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+// Headings: a warm serif that ships with every operating system.
+$font-heading: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Cambria, serif;
+
+$font-size-base:   1.125em;  // at least 18px with default browser settings
+$line-height:      1.6;
+$line-height-heading: 1.2;
+$font-size-small:  0.9em;
+$font-size-large:  1.2em;
+$font-size-h1:     2.25em;
+$font-size-h2:     1.6em;
+$font-size-h3:     1.25em;
+// Home page only (editorial scale). The em part keeps growing with browser zoom and text size.
+$font-size-display:      clamp(2.2em, 1.4em + 3.2vw, 3.6em);  // hero heading
+$font-size-statement:    clamp(1.35em, 1.1em + 1vw, 1.85em);   // introduction in the heading font
+$font-size-home-section: clamp(1.75em, 1.3em + 1.6vw, 2.4em);  // section headings
+$font-weight-regular: 400;
+$font-weight-bold:    700;
+$measure:          40em;     // max ~75 characters per line
+
+// ---------- Spacing ----------
+$space-xs:  0.25em;
+$space-s:   0.5em;
+$space-m:   1em;
+$space-l:   1.5em;
+$space-xl:  2.5em;
+$space-xxl: 4em;
+$space-section: 6em;  // vertical space of a home page band on wide screens
+
+// ---------- Sizes ----------
+$tap-target-min: 2.75em;
+$content-max:    66em;
+$step-max:       48em;     // width of the booking flow steps
+$border-thin:    0.0625em;
+$border-thick:   0.125em;
+
+// ---------- Radius ----------
+$radius-sm:   0.375em;
+$radius:      0.625em;
+$radius-lg:   1.125em;
+$radius-pill: 999em;
+
+// ---------- Shadows (slightly green, not grey) ----------
+$shadow-low:  0 0.0625em 0.125em color.change($color-forest-dark, $alpha: 0.10),
+              0 0.25em 0.75em color.change($color-forest-dark, $alpha: 0.06);
+$shadow-high: 0 0.5em 1.75em color.change($color-forest-dark, $alpha: 0.20);
+$backdrop:    color.change($color-ink, $alpha: 0.65);
+$color-divider-on-dark: color.change($color-white, $alpha: 0.35);
+
+// ---------- Motion (switched off for prefers-reduced-motion, see _base.scss) ----------
+$duration-fast: 0.15s;
+$duration:      0.25s;
+$easing:        cubic-bezier(0.2, 0.7, 0.3, 1);
+
+// ---------- Breakpoints ----------
+$bp-tablet:  48em;  // 768px
+$bp-desktop: 70em;  // 1120px

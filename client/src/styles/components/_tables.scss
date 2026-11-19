@@ -1,0 +1,70 @@
+@use "../variables" as v;
+@use "../mixins" as m;
+
+// Spreadsheet-like table: alternating row colours, sort buttons in the header row.
+.table-scroll {
+  @include m.focus-ring;
+  // position: relative keeps hidden helper text inside the scroll area, so the page itself never scrolls sideways
+  position: relative; overflow-x: auto; border: v.$border-thin solid v.$color-border; border-radius: v.$radius;
+  background: v.$color-white;
+}
+
+.table {
+  width: 100%; border-collapse: collapse; background: v.$color-white;
+
+  th, td {
+    padding: v.$space-s; text-align: left; vertical-align: top;
+    border-bottom: v.$border-thin solid v.$color-border-soft;
+  }
+  th { background: v.$color-meadow; white-space: nowrap; font-weight: v.$font-weight-bold; }
+  tbody tr:nth-child(even) { background: v.$color-meadow-soft; }
+
+  // Wide tables: the first column (the spot) stays in view while you scroll sideways
+  &--sticky-first {
+    th:first-child, td:first-child {
+      position: sticky; left: 0; z-index: 1;
+      background: v.$color-white; box-shadow: inset -#{v.$border-thick} 0 0 v.$color-border-soft;
+    }
+    th:first-child { background: v.$color-meadow; }
+    tbody tr:nth-child(even) td:first-child { background: v.$color-meadow-soft; }
+    // Keep the "needs to move" marking visible on the sticky cell
+    tbody tr.table__row--warning td:first-child {
+      background: v.$color-warning-soft;
+      box-shadow: inset 0.4em 0 0 v.$color-warning, inset -#{v.$border-thick} 0 0 v.$color-border-soft;
+    }
+  }
+  td.table__number { text-align: right; font-variant-numeric: tabular-nums; }
+  td.table__nowrap { white-space: nowrap; }
+
+  &__sort {
+    @include m.focus-ring;
+    display: inline-flex; align-items: center; gap: v.$space-xs;
+    min-height: v.$tap-target-min; padding: 0;
+    font: inherit; font-weight: v.$font-weight-bold; color: v.$color-ink;
+    background: none; border: 0; cursor: pointer;
+    text-decoration: underline; text-underline-offset: 0.2em;
+  }
+
+  &__meta { color: v.$color-ink-soft; }
+  &__note { display: block; color: v.$color-ink-soft; font-size: v.$font-size-small; }
+
+  // Needs to be moved: yellow background + stripe on the left + badge with text
+  &__row--warning { background: v.$color-warning-soft !important; box-shadow: inset 0.4em 0 0 v.$color-warning; }
+  // Cancelled: grey text and struck through (and the status column says "Geannuleerd")
+  &__row--cancelled td { color: v.$color-ink-soft; }
+  &__row--cancelled td:not(:last-child) { text-decoration: line-through; text-decoration-thickness: 0.06em; }
+
+  &__confirm { display: flex; flex-wrap: wrap; align-items: center; gap: v.$space-s; }
+
+  .btn { white-space: nowrap; }
+}
+
+// Yes/no in a cell: icon + text
+.yes-no { display: inline-flex; align-items: center; gap: v.$space-xs; }
+
+.badge {
+  display: inline-flex; align-items: center; gap: v.$space-xs; width: fit-content;
+  margin: v.$space-xs 0 0; padding: 0 v.$space-s; border-radius: v.$radius-sm;
+  font-size: v.$font-size-small; font-weight: v.$font-weight-bold;
+  &--warning { background: v.$color-warning; color: v.$color-white; }
+}

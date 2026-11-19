@@ -1,0 +1,63 @@
+@use "../variables" as v;
+@use "../mixins" as m;
+
+// Buttons: large, clear, always with text (an icon may be added, never instead of text).
+// Variants: .btn (primary), .btn--secondary, .btn--danger. Sizes: .btn--large, .btn--small, .btn--block.
+// States: :hover, :focus-visible, :disabled and aria-busy="true" (loading, with a spinning icon).
+.btn {
+  @include m.tap-target;
+  @include m.focus-ring;
+  @include m.transition(background-color, border-color, color, box-shadow);
+  display: inline-flex; align-items: center; justify-content: center; gap: v.$space-s;
+  padding: v.$space-s v.$space-l;
+  font: inherit; font-weight: v.$font-weight-bold; line-height: 1.2; text-decoration: none; text-align: center;
+  border: v.$border-thick solid v.$color-forest; border-radius: v.$radius;
+  background: v.$color-forest; color: v.$color-white;
+  cursor: pointer;
+
+  &:hover { background: v.$color-forest-dark; border-color: v.$color-forest-dark; color: v.$color-white; }
+  &:active { transform: translateY(0.0625em); }
+
+  // Second choice, e.g. "Terug"
+  &--secondary {
+    background: v.$color-white; color: v.$color-forest;
+    &:hover { background: v.$color-meadow; color: v.$color-forest-dark; }
+  }
+
+  // Main action on a forest-green surface (home page): ink on buttercup, 10.6 : 1
+  &--sun {
+    @include m.focus-ring-light;
+    background: v.$color-buttercup; border-color: v.$color-buttercup; color: v.$color-ink;
+    &:hover { background: v.$color-buttercup-soft; border-color: v.$color-buttercup-soft; color: v.$color-ink; }
+  }
+
+  // Something that cannot simply be undone, e.g. cancelling a reservation
+  &--danger {
+    background: v.$color-error; border-color: v.$color-error; color: v.$color-white;
+    &:hover { background: v.$color-error-dark; border-color: v.$color-error-dark; }
+  }
+
+  &--large {
+    font-size: v.$font-size-large; padding: v.$space-m v.$space-xl; border-radius: v.$radius-lg;
+    // On a phone: full width, so the text fits on one line
+    @include m.below-tablet { width: 100%; padding-inline: v.$space-l; }
+  }
+  &--small { padding: v.$space-xs v.$space-m; }
+  &--block { width: 100%; }
+
+  &:disabled, &[aria-disabled="true"] {
+    background: v.$color-disabled; border-color: v.$color-disabled-border; color: v.$color-ink-soft; cursor: not-allowed;
+    &:active { transform: none; }
+  }
+
+  // Busy: spinning icon (stands still with prefers-reduced-motion; the text then says "Bezig met …")
+  &[aria-busy="true"] .icon { animation: spin 0.9s linear infinite; }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// Row of buttons ("Terug" and "Verder")
+.btn-row {
+  display: flex; flex-wrap: wrap; align-items: center; gap: v.$space-m; margin-top: v.$space-l;
+  &--split { justify-content: space-between; }
+}
