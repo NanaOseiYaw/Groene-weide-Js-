@@ -19,9 +19,9 @@ const prices = ref(null);
 const error = ref(null);
 
 const OPTIONS = [
-  { value: 'TentCaravan', icon: 'tent', title: 'Tent of caravan', text: 'Een ruime grasplek op het Kampeerveld. Je neemt je eigen tent of caravan mee.' },
-  { value: 'Camper', icon: 'camper', title: 'Camper', text: 'Een camperplek met stroom en water op het Camperveld.' },
-  { value: 'Safari', icon: 'safari', title: 'Safaritent', text: 'Een ingerichte safaritent met bedden en een eigen terras op het Safariveld.' },
+  { value: 'TentCaravan', icon: 'tent', title: 'Tent of caravan', text: 'Een ruime grasplek op het Kampeerveld. Je neemt je eigen tent of caravan mee.', showPrice: true },
+  { value: 'Camper', icon: 'camper', title: 'Camper', text: 'Een camperplek met stroom en water op het Camperveld.', showPrice: true },
+  { value: 'Safari', icon: 'safari', title: 'Safaritent', text: 'Een ingerichte safaritent met bedden en een eigen terras op het Safariveld.', showPrice: true },
 ];
 
 // Only types that have bookable spots, each with its price per night.

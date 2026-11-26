@@ -16,6 +16,11 @@
   display: grid; gap: v.$space-m; max-width: v.$step-max;
   // Two options may sit side by side when there is room
   &--two { grid-template-columns: repeat(auto-fit, minmax(min(15em, 100%), 1fr)); }
+  // Equipment: four cards in two columns, with two cards in each row.
+  &--equipment {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    @include m.below-tablet { grid-template-columns: 1fr; }
+  }
 }
 
 .choice {

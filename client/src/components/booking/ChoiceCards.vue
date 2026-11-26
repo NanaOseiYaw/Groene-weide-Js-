@@ -27,7 +27,7 @@ const selected = defineModel({ type: String, default: null });
       <span class="choice__body">
         <span class="choice__title">{{ option.title }}</span>
         <span v-if="option.text" class="choice__text">{{ option.text }}</span>
-        <span v-if="option.price" class="choice__price">{{ option.price }}</span>
+        <span v-if="option.price" class="choice__price">{{ option.showPrice === true ? option.price : null}}</span>
       </span>
       <span v-if="selected === option.value" class="choice__chosen"><AppIcon name="check" /> Gekozen</span>
     </label>
