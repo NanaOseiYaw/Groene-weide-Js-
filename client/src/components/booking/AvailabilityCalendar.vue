@@ -350,7 +350,7 @@ const dayNumber = (date) => Number(date.slice(8));
               </template>
               <template v-else>
                 <span class="calendar__icon"><AppIcon :name="statusIcon(day)" /></span>
-                <span class="calendar__label">{{ day.label }}</span>
+                <span class="calendar__label">{{ day.label }} {{ canBeDeparture(day) ? `- ${day.freeSpots} ${day.freeSpots === 1 ? 'plek' : 'plekken'}`: null }}</span>
                 <span v-if="day.selectable" class="calendar__price">{{ euro(day.pricePerNightCents) }}</span>
                 <span v-if="day.date === start" class="calendar__marker">aankomst</span>
                 <span v-else-if="day.date === end" class="calendar__marker">vertrek</span>
