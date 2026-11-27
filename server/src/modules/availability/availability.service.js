@@ -167,11 +167,13 @@ function dayStatus({ inSeason, totalSpots, freeSpots, deal, threshold }) {
 
 /** Short Dutch text shown next to the colour: never colour alone (accessibility). */
 function labelFor(status, freeSpots) {
+  const freeSpotsStr = `${freeSpots} ${freeSpots === 1 ? 'plek' : 'plekken'} over`;
+
   switch (status) {
-    case DAY_STATUS.Closed: return 'gesloten';
-    case DAY_STATUS.Full: return 'vol';
-    case DAY_STATUS.AlmostFull: return freeSpots === 1 ? 'nog 1 plek' : `nog ${freeSpots} plekken`;
-    case DAY_STATUS.Deal: return 'deal';
-    default: return 'vrij';
+    case DAY_STATUS.Closed: return 'Gesloten';
+    case DAY_STATUS.Full: return 'Vol';
+    case DAY_STATUS.AlmostFull: return `Bijna vol - ${freeSpotsStr}`;
+    case DAY_STATUS.Deal: return `Deal - ${freeSpotsStr}`;
+    default: return `Vrij - ${freeSpotsStr}`;
   }
 }
