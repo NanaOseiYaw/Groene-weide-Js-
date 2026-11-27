@@ -29,6 +29,13 @@ $color-white:          #ffffff;
 $color-border:         #6b7064;  // form field borders (5.1 : 1 on white)
 $color-border-soft:    #d5dccd;  // decorative dividers only
 
+// ---------- Field map (booking step 5) ----------
+// Only dark text goes on these colours, so it stays easy to read.
+$map-grass:  #bcd9a8;
+$map-hedge:  #2f6b3a;
+$map-leaf:   #5d9a4a;  // light green of bushes and trees
+$map-sand:   #eadcb4;  // the path
+
 // ---------- Status colours (BUILD.md, do not change) ----------
 $status-free:        #1b6e3c;
 $status-almost-full: #b35c00;

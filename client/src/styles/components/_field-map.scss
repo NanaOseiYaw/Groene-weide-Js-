@@ -1,0 +1,216 @@
+@use "../variables" as v;
+@use "../mixins" as m;
+
+// The map of your field in booking step 5 (FieldMap.vue).
+//
+// How the 3D works:
+// 1. The field is tilted backwards by --tilt.
+// 2. Things that stand on the field (tents, name labels, trees, sign) are turned back by the
+//    same angle. So they stand up straight and the text is easy to read.
+// On a phone --tilt is 0. With many rows, a tilted field makes the back rows too small to tap.
+
+.field-map {
+  --tilt: 0deg;
+  margin: v.$space-xl 0 v.$space-l; // space above for the sign
+  perspective: 140em; // smaller number = stronger 3D
+
+  // The front of the tilted field gets a bit wider, so it needs some space on the sides.
+  @include m.from-tablet { --tilt: 22deg; padding-inline: 2em; }
+}
+
+// Makes something stand up straight on the tilted field.
+@mixin stand-up {
+  transform: rotateX(calc(-1 * var(--tilt)));
+  transform-origin: 50% 100%; // turn around the bottom edge, where it touches the grass
+}
+
+// ---------- Hedge ----------
+.field-map__hedge {
+  position: relative;
+  padding: 2.5em 0.75em 0.75em;
+  border-radius: 2em;
+  // Bushes: light green dots on dark green.
+  background:
+    radial-gradient(circle at 35% 35%, v.$map-leaf 0 22%, transparent 26%) 0 0 / 1.3em 1.3em,
+    v.$map-hedge;
+
+  @include m.from-tablet { padding: 3em 1.5em 1.5em; }
+
+  // Tilt around a line 30% from the top. Then the field stays close to the legend above it.
+  // preserve-3d is needed so the tents can stand up inside the tilted field.
+  transform: rotateX(var(--tilt));
+  transform-origin: 50% 30%;
+  transform-style: preserve-3d;
+  // In 3D the browser can mix up things that lie in the same flat plane: it sometimes thinks
+  // the mouse is on the hedge or grass instead of on a spot, and the hover flickers.
+  // So the field ignores the mouse. Only the spots react to it (pointer-events: auto below).
+  pointer-events: none;
+  // First shadow: the thick edge of the ground. Second: the shadow on the "table".
+  box-shadow:
+    0 0.9em 0 v.$color-forest-dark,
+    0 1.6em 1.6em rgba(v.$color-ink, 0.25);
+
+  // Two trees on the corners: a light circle inside a darker one.
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    width: 4em;
+    height: 4em;
+    border-radius: 50%;
+    background: radial-gradient(circle at 38% 35%, v.$map-leaf 0 35%, v.$map-hedge 36% 70%, v.$color-forest-dark 71%);
+    box-shadow: 0 0.5em 0.6em rgba(v.$color-ink, 0.3);
+    @include stand-up;
+  }
+  &::before { top: -1.25em; left: -1em; }
+  &::after { right: -1em; bottom: -1.25em; }
+}
+
+// The sign stands on the top edge of the hedge.
+.field-map__sign {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 1;
+  margin: 0;
+  translate: -50% -60%; // separate from transform, so it doesn't clash with stand-up
+  @include stand-up;
+}
+
+// ---------- Grass ----------
+.field-map__meadow {
+  display: grid;
+  gap: 1em 0.5em;
+  margin: 0;
+  padding: 1.25em 0.75em;
+  list-style: none;
+  border-radius: 1.4em;
+  transform-style: preserve-3d;
+  box-shadow: inset 0 0.4em 0.6em rgba(v.$color-ink, 0.18); // grass sits a bit lower than the hedge
+  // Mowing stripes.
+  background:
+    repeating-linear-gradient(90deg, rgba(v.$color-white, 0.14) 0 3em, transparent 3em 6em),
+    v.$map-grass;
+
+  // Phone: as many spots in a row as fit.
+  grid-template-columns: repeat(auto-fill, minmax(4.75em, 1fr));
+
+  // Tablet and up: the real rows. --columns is set in FieldMap.vue (8 or 4).
+  @include m.from-tablet {
+    grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+    gap: 1.5em 1em;
+    padding: 2em 1.5em;
+  }
+}
+
+.field-map__place { display: flex; justify-content: center; transform-style: preserve-3d; }
+
+// ---------- One spot ----------
+.field-map__pitch {
+  width: 100%;
+  max-width: 8em;
+  min-height: 5.25em;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4em;
+  padding: 0.5em 0.25em;
+  font: inherit;
+  color: v.$color-forest;
+  background: rgba(v.$color-white, 0.45);
+  border: 0.12em dashed rgba(v.$color-forest, 0.6);
+  border-radius: 0.9em;
+  transform-style: preserve-3d;
+  translate: 0 0 1px; // 1px above the grass, so it is never in the same plane
+  pointer-events: auto;
+
+  // The tent and label ignore the mouse too. When they pop up on hover,
+  // they would otherwise move away from under the mouse and stop the hover.
+  > .icon,
+  > .spot-marker { @include stand-up; pointer-events: none; }
+
+  > .icon { width: 2.2em; height: 2.2em; filter: drop-shadow(0 0.2em 0.1em rgba(v.$color-ink, 0.3)); }
+}
+
+// Free and chosen spots are buttons.
+button.field-map__pitch {
+  @include m.focus-ring;
+  @include m.transition(background-color, border-color, box-shadow, scale);
+  cursor: pointer;
+
+  > .icon,
+  > .spot-marker { @include m.transition(transform); }
+
+  // Hover or keyboard focus: the spot turns cream, gets bigger, and the tent pops up a bit.
+  // So you can always see which spot you are on.
+  &:hover,
+  &:focus-visible {
+    background: v.$color-buttercup-soft;
+    border: 0.2em solid v.$color-forest;
+    scale: 1.08;
+
+    > .icon,
+    > .spot-marker { transform: rotateX(calc(-1 * var(--tilt))) translateY(-0.35em); }
+    > .spot-marker--free { background: v.$color-forest-dark; }
+  }
+
+  // Shadow only on hover. Keyboard focus already has the yellow ring from focus-ring.
+  &:hover { box-shadow: 0 0.4em 0.7em rgba(v.$color-ink, 0.25); }
+}
+
+// Taken: stripes and grey. Not just a colour, so it also works for people who see colour badly.
+.field-map__pitch--taken {
+  color: v.$color-ink-soft;
+  background: repeating-linear-gradient(135deg, rgba(v.$color-ink, 0.1) 0 0.35em, transparent 0.35em 0.7em);
+  border-color: rgba(v.$color-ink, 0.35);
+}
+
+// Chosen: yellow. It stays yellow on hover and focus too.
+button.field-map__pitch--chosen {
+  color: v.$color-ink;
+  background: v.$color-buttercup;
+  border: 0.15em solid v.$color-ink;
+
+  &:hover,
+  &:focus-visible { background: v.$color-buttercup; border-color: v.$color-ink; }
+}
+
+// ---------- Name label on a spot (also used in the legend) ----------
+.spot-marker {
+  display: inline-flex; align-items: center; gap: 0.25em;
+  padding: 0.1em 0.55em;
+  font-weight: v.$font-weight-bold;
+  line-height: 1.4;
+  border-radius: v.$radius-pill;
+
+  .icon { width: 0.95em; height: 0.95em; }
+
+  &--free { color: v.$color-white; background: v.$color-forest; }
+  &--taken { color: v.$color-ink-soft; background: rgba(v.$color-white, 0.7); }
+  &--chosen { color: v.$color-ink; background: v.$color-white; box-shadow: 0 0 0 0.12em v.$color-ink; }
+}
+
+// ---------- Path ----------
+.field-map__path {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  margin: -0.5em auto 0; // overlaps the hedge a little, so it looks like a gap in it
+  padding: 0.6em 1.4em;
+  display: flex; align-items: center; justify-content: center; gap: v.$space-s;
+  font-weight: v.$font-weight-bold;
+  text-align: center;
+  color: v.$color-ink;
+  // Gravel: small dots on sand.
+  background:
+    radial-gradient(circle, rgba(v.$color-ink, 0.12) 0 12%, transparent 14%) 0 0 / 0.6em 0.6em,
+    v.$map-sand;
+  border-radius: 0 0 1em 1em;
+}
+
+// ---------- Legend ----------
+.map-legend {
+  display: flex; flex-wrap: wrap; gap: v.$space-s;
+  margin: 0 0 v.$space-m; padding: 0; list-style: none;
+
+  // Same background as on the map, so the labels look the same.
+  li { padding: 0.25em; background: v.$map-grass; border-radius: v.$radius-pill; }
+  .map-legend__chosen { background: v.$color-buttercup; }
+}
